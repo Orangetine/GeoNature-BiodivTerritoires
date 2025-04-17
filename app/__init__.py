@@ -83,7 +83,7 @@ def create_app():
         # Cache
         app.config["CACHE_TIMEOUT"] = config("CACHE_TIMEOUT", default=86400)
         app.config["CACHE_REDIS_HOST"] = config(
-            "CACHE_REDIS_HOST", default="redis"
+            "CACHE_REDIS_HOST", default='localhost'
         )
         app.config["CACHE_REDIS_PORT"] = config(
             "CACHE_REDIS_PORT", default=6379
