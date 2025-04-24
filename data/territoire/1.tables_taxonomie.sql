@@ -42,7 +42,7 @@ CREATE TABLE taxonomie.t_c_redlist (
     status_order integer,
     cd_nom integer REFERENCES taxonomie.taxref (cd_nom),
     cd_ref integer REFERENCES taxonomie.taxref (cd_nom),
-    category char(2) 
+    category char(2), 
     criteria varchar(50),
     id_source integer REFERENCES taxonomie.bib_c_redlist_source (id_source)
 );
@@ -154,6 +154,5 @@ CREATE TABLE taxonomie.taxref_liste_rouge_fr (
 	annee_publication int4 NULL,
 	categorie_lr_europe varchar(2) NULL,
 	categorie_lr_mondiale varchar(5) NULL,
-	CONSTRAINT pk_taxref_liste_rouge_fr PRIMARY KEY (id_lr),
-	CONSTRAINT fk_taxref_lr_bib_taxref_categories FOREIGN KEY (id_categorie_france) REFERENCES taxonomie.bib_taxref_categories_lr(id_categorie_france) ON UPDATE CASCADE
+	CONSTRAINT pk_taxref_liste_rouge_fr PRIMARY KEY (id_lr)
 );
