@@ -13,7 +13,6 @@ CREATE TABLE IF NOT EXISTS gn_biodivterritory.bib_dynamic_pages_category (
     PRIMARY KEY (id_category)
 );
 
-
 /* INFO: Editable content: table for pages */
 CREATE TABLE IF NOT EXISTS gn_biodivterritory.t_dynamic_pages (
     id_page serial NOT NULL,
@@ -73,45 +72,48 @@ COMMENT ON COLUMN gn_biodivterritory.l_areas_type_selection.id_type IS 'referenc
 
 COMMENT ON COLUMN gn_biodivterritory.l_areas_type_selection.searchable IS 'searchable area from API with autocomplete';
 
-CREATE TABLE IF NOT EXISTS taxonomie.bib_c_redlist_source (
-    id_source serial NOT NULL,
-    name_source varchar,
-    version varchar,
-    desc_source varchar,
-    url_source varchar,
-    context varchar,
-    area_name varchar,
-    area_code varchar,
-    area_type varchar,
-    priority integer,
-    PRIMARY KEY (id_source)
+CREATE TABLE taxonomie.bib_c_redlist_source (
+    id_source serial PRIMARY KEY,
+    name_source varchar(254),
+    version varchar(50),
+    desc_source text,
+    url_source varchar(254),
+    context varchar(50),
+    area_name varchar(50),
+    area_code varchar(50),
+    area_type varchar(50),
+    priority integer
 );
 
-COMMENT ON TABLE taxonomie.t_c_redlist IS 'Liste des sources de statuts de liste rouge';
+COMMENT ON TABLE taxonomie.bib_c_redlist_source IS 'Liste des sources de statuts de liste rouge';
 
-CREATE TABLE IF NOT EXISTS taxonomie.t_c_redlist (
-    id_redlist serial NOT NULL,
+DROP TABLE IF EXISTS taxonomie.t_c_redlist;
+
+CREATE TABLE taxonomie.t_c_redlist (
+    id_redlist serial NOT NULL PRIMARY KEY,
     status_order integer,
-    cd_nom integer,
-    cd_ref integer,
-    category varchar,
-    criteria varchar,
-    id_source integer REFERENCES taxonomie.bib_c_redlist_source (id_source),
-    PRIMARY KEY (id_redlist)
+    cd_nom integer REFERENCES taxonomie.taxref (cd_nom),
+    cd_ref integer REFERENCES taxonomie.taxref (cd_nom),
+    category char(2) NOT NULL REFERENCES taxonomie.bib_taxref_categories_lr (id_categorie_france),
+    criteria varchar(50),
+    id_source integer REFERENCES taxonomie.bib_c_redlist_source (id_source)
 );
 
 COMMENT ON TABLE taxonomie.t_c_redlist IS 'Liste des statuts de liste rouge par taxons';
 
-CREATE TABLE IF NOT EXISTS taxonomie.bib_c_redlist_categories (
-    code_category varchar NOT NULL,
-    threatened boolean,
-    sup_category varchar,
-    priority_order integer,
-    name_fr varchar,
-    desc_fr varchar,
-    PRIMARY KEY (code_category)
-);
+/* Déjà présent dans taxonomie.bib_taxref_categories_fr */
+DROP TABLE IF EXISTS taxonomie.bib_c_redlist_categories;
 
+CREATE TABLE taxonomie.bib_c_redlist_categories (
+    code_category varchar(2) PRIMARY KEY,
+    sup_category varchar(30),
+    threatened boolean DEFAULT FALSE,
+    priority_order int,
+    name_fr varchar(100),
+    desc_fr varchar(254),
+    name_en varchar(100),
+    desc_en varchar(254)
+);
 COMMENT ON TABLE taxonomie.bib_c_redlist_categories IS 'Liste des catégories de statuts de liste rouge';
 
 CREATE TABLE IF NOT EXISTS gn_biodivterritory.t_max_threatened_status (
@@ -232,99 +234,16 @@ SELECT
 /*******************************
  *   TERRITORY GENERAL STATS   *
  *******************************/
--- UPDATE gn_synthese.synthese
--- SET
---     the_geom_local = the_geom_local;
---
--- INSERT INTO
---     gn_synthese.cor_area_synthese (id_synthese, id_area)
--- SELECT
---     s.id_synthese AS id_synthese
---   , a.id_area     AS id_area
--- FROM
---     ref_geo.l_areas a
---         JOIN gn_synthese.synthese s ON public.ST_INTERSECTS(s.the_geom_local, a.geom)
--- WHERE
---         a.id_type = (SELECT id_type FROM ref_geo.bib_areas_types WHERE type_code LIKE 'M0.5');
 SET enable_hashjoin = OFF;
 
 RESET enable_mergejoin;
 
 RESET enable_nestloop;
 
-DROP MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats CASCADE;
-
--- CREATE MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats AS
--- (
---     )
--- ;
--- EXPLAIN (
---     COSTS,
---     VERBOSE,
---     FORMAT JSON
--- ) DROP MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats CASCADE;
--- CREATE MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats AS
--- WITH observers AS (
---     SELECT DISTINCT
---         cor_area_synthese.id_area,
---         unaccent (trim(regexp_split_to_table(synthese.observers, ','))) AS observer
---     FROM
---         gn_synthese.synthese
---         JOIN gn_synthese.cor_area_synthese ON synthese.id_synthese = cor_area_synthese.id_synthese
--- )
--- SELECT
---     l_areas.id_area,
---     bib_areas_types.type_code,
---     l_areas.area_code,
---     l_areas.area_name,
---     count(DISTINCT synthese.cd_nom) FILTER (WHERE taxref.id_rang LIKE 'es') AS count_taxa,
---     count(DISTINCT synthese.id_synthese) AS count_occtax,
---     count(DISTINCT synthese.cd_nom) FILTER (WHERE bib_c_redlist_categories.threatened
---         AND bib_c_redlist_source.area_code LIKE 'FR'
---         AND taxref.id_rang LIKE 'es') AS count_threatened,
---     count(DISTINCT synthese.id_dataset) AS count_dataset,
---     count(DISTINCT synthese.date_min) AS count_date,
---     count(DISTINCT synthese.observers) AS count_observer,
---     max(date_min) AS last_obs,
---     l_areas.geom AS geom_local,
---     st_transform (l_areas.geom, 4326) AS geom_4326
--- FROM
---     ref_geo.l_areas
--- JOIN ref_geo.bib_areas_types ON l_areas.id_type = bib_areas_types.id_type
--- JOIN gn_synthese.cor_area_synthese ON l_areas.id_area = cor_area_synthese.id_area
--- JOIN gn_synthese.synthese ON cor_area_synthese.id_synthese = synthese.id_synthese
--- JOIN taxonomie.taxref ON synthese.cd_nom = taxref.cd_nom
--- --             JOIN ref_nomenclatures.t_nomenclatures nom_df
--- --                  on synthese.id_nomenclature_diffusion_level = nom_df.id_nomenclature
--- JOIN taxonomie.bib_taxref_rangs ON taxref.id_rang LIKE bib_taxref_rangs.id_rang
---     LEFT JOIN taxonomie.t_c_redlist ON taxref.cd_nom = t_c_redlist.cd_nom
---     JOIN taxonomie.bib_c_redlist_categories ON t_c_redlist.category = bib_c_redlist_categories.code_category
---     JOIN taxonomie.bib_c_redlist_source ON t_c_redlist.id_source = bib_c_redlist_source.id_source
---     JOIN observers ON observers.id_area = l_areas.id_area
--- WHERE
---     bib_taxref_rangs.id_rang LIKE 'es'
---     --       AND nom_df.cd_nomenclature like '5'
--- GROUP BY
---     l_areas.id_area,
---     bib_areas_types.type_code,
---     l_areas.area_code,
---     l_areas.area_name,
---     l_areas.geom;
 DROP MATERIALIZED VIEW IF EXISTS gn_biodivterritory.mv_territory_general_stats CASCADE;
 
 CREATE MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats AS
--- WITH
---     explain observers AS (
---         explain
---         SELECT DISTINCT
---             cor_area_synthese.id_area
---           , unaccent(trim(regexp_split_to_table(synthese.observers, ','))) AS observer
---             FROM
---                 gn_synthese.synthese
---                     JOIN gn_synthese.cor_area_synthese ON synthese.id_synthese = cor_area_synthese.id_synthese
---     )
--- EXPLAIN
---     (ANALYZE, VERBOSE)
+
 SELECT
     l_areas.id_area,
     bib_areas_types.type_code,
@@ -346,12 +265,8 @@ FROM
     JOIN ref_geo.l_areas ON cor_area_synthese.id_area = l_areas.id_area
     JOIN gn_biodivterritory.l_areas_type_selection ON l_areas_type_selection.id_type = l_areas.id_type
     JOIN ref_geo.bib_areas_types ON l_areas_type_selection.id_type = bib_areas_types.id_type
-    --             JOIN observers ON observers.id_area = l_areas.id_area
     JOIN taxonomie.taxref ON synthese.cd_nom = taxref.cd_nom
     LEFT OUTER JOIN gn_biodivterritory.t_max_threatened_status ON gn_biodivterritory.t_max_threatened_status.cd_nom = taxonomie.taxref.cd_ref
-    --             LEFT JOIN taxonomie.t_c_redlist ON taxref.cd_nom = t_c_redlist.cd_nom
-    --             JOIN taxonomie.bib_c_redlist_categories ON t_c_redlist.category = bib_c_redlist_categories.code_category
-    --             JOIN taxonomie.bib_c_redlist_source ON t_c_redlist.id_source = bib_c_redlist_source.id_source
 WHERE
     taxref.id_rang LIKE 'ES'
     AND taxref.cd_nom = taxref.cd_ref
@@ -361,9 +276,6 @@ WHERE
             id_type
         FROM
             gn_biodivterritory.l_areas_type_selection)
-    --       AND synthese.date_min < now()::date
-    --       AND cor_area_synthese.id_area = 2191792
-    --         and cor_area_synthese.id_area = 5271
 GROUP BY
     l_areas.id_area,
     l_areas.area_code,
@@ -502,7 +414,7 @@ CREATE MATERIALIZED VIEW gn_biodivterritory.mv_area_ntile_limit AS (
  **************************MVTerritoryGeneralStats*****/
 /* Création de la table de statuts BDC Statuts */
 DROP TABLE IF EXISTS taxonomie.bib_c_bdc_type_statut;
-
+/* Equivalent bdc_statut_type */
 CREATE TABLE taxonomie.bib_c_bdc_type_statut (
     id_type_statut varchar(50) PRIMARY KEY NOT NULL,
     cd_type_statut varchar(50),
@@ -511,7 +423,7 @@ CREATE TABLE taxonomie.bib_c_bdc_type_statut (
     thematique varchar(50),
     type_value varchar(20)
 );
-
+/* Equivalent bdc_statut */
 CREATE TABLE IF NOT EXISTS taxonomie.taxref_bdc_statuts (
     id_taxref_bdc serial PRIMARY KEY,
     cd_nom integer REFERENCES taxonomie.taxref (cd_nom),
@@ -548,19 +460,7 @@ CREATE TABLE IF NOT EXISTS taxonomie.taxref_bdc_statuts (
 );
 
 
-/* Déjà présent dans taxonomie.bib_taxref_categories_fr */
-DROP TABLE IF EXISTS taxonomie.bib_c_redlist_categories;
-
-CREATE TABLE taxonomie.bib_c_redlist_categories (
-    code_category varchar(2) PRIMARY KEY,
-    sup_category varchar(30),
-    threatened boolean DEFAULT FALSE,
-    priority_order int,
-    name_fr varchar(100),
-    desc_fr varchar(254),
-    name_en varchar(100),
-    desc_en varchar(254)
-);
+/* id_categorie_france est maintenant la colonne code_statut de la table taxonomie.bdc_statut_values */
 
 INSERT INTO taxonomie.bib_c_redlist_categories (code_category, threatened, sup_category, priority_order)
 SELECT DISTINCT
@@ -602,37 +502,12 @@ SELECT DISTINCT
         110
     END AS priority_order
 FROM
-    taxonomie.taxref_liste_rouge_fr;
-
-CREATE TABLE taxonomie.bib_c_redlist_source (
-    id_source serial PRIMARY KEY,
-    name_source varchar(254),
-    desc_source text,
-    url_source varchar(254),
-    context varchar(50),
-    area_name varchar(50),
-    area_code varchar(50),
-    area_type varchar(50),
-    priority integer
-);
-
+    taxonomie.taxref_liste_rouge_fr; /* Utiliser bdc_statut_values pour faire cette table */
 
 /* Optional matching with */
 CREATE TABLE taxonomie.cor_c_redlist_source_area (
     id_cor_c_redlist_source_area serial PRIMARY KEY,
     id_area integer REFERENCES ref_geo.l_areas (id_area),
-    id_source integer REFERENCES taxonomie.bib_c_redlist_source (id_source)
-);
-
-DROP TABLE IF EXISTS taxonomie.t_c_redlist;
-
-CREATE TABLE taxonomie.t_c_redlist (
-    id_redlist serial NOT NULL PRIMARY KEY,
-    status_order integer,
-    cd_nom integer REFERENCES taxonomie.taxref (cd_nom),
-    cd_ref integer REFERENCES taxonomie.taxref (cd_nom),
-    category char(2) NOT NULL REFERENCES taxonomie.bib_taxref_categories_lr (id_categorie_france),
-    criteria varchar(50),
     id_source integer REFERENCES taxonomie.bib_c_redlist_source (id_source)
 );
 
