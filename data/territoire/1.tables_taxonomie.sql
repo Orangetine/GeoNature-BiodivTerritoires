@@ -4,7 +4,7 @@
 CREATE TABLE taxonomie.bib_c_redlist_source (
     id_source serial PRIMARY KEY,
     name_source varchar(254),
-    version varchar(50)
+    version varchar(50),
     desc_source text,
     url_source varchar(254),
     context varchar(50),
@@ -42,7 +42,7 @@ CREATE TABLE taxonomie.t_c_redlist (
     status_order integer,
     cd_nom integer REFERENCES taxonomie.taxref (cd_nom),
     cd_ref integer REFERENCES taxonomie.taxref (cd_nom),
-    category char(2) NOT NULL REFERENCES taxonomie.bib_taxref_categories_lr (id_categorie_france),
+    category char(2) 
     criteria varchar(50),
     id_source integer REFERENCES taxonomie.bib_c_redlist_source (id_source)
 );
