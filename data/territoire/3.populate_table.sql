@@ -1,8 +1,8 @@
-/* Création des zonages régionaux et nationaux pour associer aux listes rouges */
-INSERT INTO ref_geo.bib_areas_types (type_name, type_code, type_desc)
-    VALUES ('Régions', 'REG', 'Type région'), ('Pays', 'PAY', 'Type pays')
-ON CONFLICT
-    DO NOTHING;
+-- /* Création des zonages régionaux et nationaux pour associer aux listes rouges */
+-- INSERT INTO ref_geo.bib_areas_types (type_name, type_code, type_desc)
+--     VALUES ('Régions', 'REG', 'Type région'), ('Pays', 'PAY', 'Type pays')
+-- ON CONFLICT
+--     DO NOTHING;
 
 
 /***************************************************
@@ -10,15 +10,19 @@ ON CONFLICT
  *  La variable _areas est issue de la commande psql
  *  psql -v _areas=$AREAS monscript.sql
  ***************************************************/
-INSERT INTO gn_biodivterritory.l_areas_type_selection (id_type)
+INSERT INTO gn_biodivterritory.l_areas_type_selection (id_type, searchable)
 SELECT
-    id_type
+    id_type,
+    CASE WHEN id_type = 25
+        THEN TRUE
+        ELSE FALSE
+    END AS searchable
 FROM
     ref_geo.bib_areas_types
 WHERE
     type_code IN (
         SELECT
-            unnest(string_to_array(:'_areas', ' ')))
+            unnest(string_to_array(:'_areas', ',')))
 ON CONFLICT
     DO NOTHING;
 
