@@ -14,7 +14,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
-
+from config.config import APP_SCHEMA_NAME, LOCAL_SRID
 from app.core.env import DB
 
 
@@ -39,7 +39,7 @@ class LAreas(DB.Model):
     id_type = Column(Integer, ForeignKey("ref_geo.bib_areas_types.id_type"))
     area_name = Column(String)
     area_code = Column(String)
-    geom = Column(Geometry("GEOMETRY", current_app.config["LOCAL_SRID"]))
+    geom = Column(Geometry("GEOMETRY", LOCAL_SRID))
     source = Column(String)
     enable = Column(Boolean)
     area_type = relationship(
@@ -84,7 +84,7 @@ class LiMunicipalities(DB.Model):
 @serializable
 class MVLAreasAutocomplete(DB.Model):
     __tablename__ = "mv_l_areas_autocomplete"
-    __table_args__ = {"schema": "gn_biodivterritory", "extend_existing": True}
+    __table_args__ = {"schema": APP_SCHEMA_NAME, "extend_existing": True}
     id = Column(Integer, primary_key=True)
     type_name = Column(String)
     search_area_name = Column(String)
@@ -97,7 +97,7 @@ class MVLAreasAutocomplete(DB.Model):
 @serializable
 class LAreasTypeSelection(DB.Model):
     __tablename__ = "l_areas_type_selection"
-    __table_args__ = ({"schema": "gn_biodivterritory"},)
+    __table_args__ = ({"schema": APP_SCHEMA_NAME},)
     id_selection = Column(Integer, primary_key=True)
     id_type = Column(
         Integer, ForeignKey("ref_geo.bib_areas_types.id_type"), unique=True

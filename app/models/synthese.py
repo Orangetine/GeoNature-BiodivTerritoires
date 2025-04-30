@@ -6,7 +6,7 @@ from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
 
 from app.core.env import DB
-
+from config.config import LOCAL_SRID
 
 @serializable
 class VSyntheseDecodeNomenclatures(DB.Model):
@@ -75,7 +75,7 @@ class Synthese(DB.Model):
     the_geom_4326 = Column(Geometry("GEOMETRY", 4326))
     the_geom_point = Column(Geometry("GEOMETRY", 4326))
     the_geom_local = Column(
-        Geometry("GEOMETRY", current_app.config["LOCAL_SRID"])
+        Geometry("GEOMETRY", LOCAL_SRID)
     )
     date_min = Column(DateTime)
     date_max = Column(DateTime)

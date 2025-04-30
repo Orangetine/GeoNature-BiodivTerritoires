@@ -5,13 +5,13 @@ from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
 
 from app.core.env import DB
-
+from config.config import APP_SCHEMA_NAME, LOCAL_SRID
 
 @serializable
 class MVGeneralStats(DB.Model):
     __tablename__ = "mv_general_stats"
     __table_args__ = {
-        "schema": current_app.config["APP_SCHEMA_NAME"],
+        "schema": APP_SCHEMA_NAME,
         "extend_existing": True,
     }
     id = Column(Integer, primary_key=True)
@@ -25,7 +25,7 @@ class MVGeneralStats(DB.Model):
 @geoserializable
 class MVTerritoryGeneralStats(DB.Model):
     __tablename__ = "mv_territory_general_stats"
-    __table_args__ = {"schema": current_app.config["APP_SCHEMA_NAME"]}
+    __table_args__ = {"schema": APP_SCHEMA_NAME}
     id_area = Column(Integer, primary_key=True)
     type_code = Column(String, nullable=False)
     area_code = Column(String)
@@ -37,7 +37,7 @@ class MVTerritoryGeneralStats(DB.Model):
     count_date = Column(Integer)
     count_observer = Column(Integer)
     last_obs = Column(Date)
-    geom_local = Column(Geometry("GEOMETRY", current_app.config["LOCAL_SRID"]))
+    geom_local = Column(Geometry("GEOMETRY", LOCAL_SRID))
     geom_4326 = Column(Geometry("GEOMETRY", 4326))
 
     def __repr__(self):
@@ -50,7 +50,7 @@ class MVTerritoryGeneralStats(DB.Model):
 @serializable
 class MVAreaNtileLimit(DB.Model):
     __tablename__ = "mv_area_ntile_limit"
-    __table_args__ = {"schema": current_app.config["APP_SCHEMA_NAME"]}
+    __table_args__ = {"schema": APP_SCHEMA_NAME}
     id = Column(Integer, unique=True, primary_key=True)
     type = Column(String, nullable=False)
     min = Column(Integer, nullable=False)

@@ -1,6 +1,7 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text
 from utils_flask_sqla.serializers import serializable
 
+from config.config import APP_SCHEMA_NAME
 from app.core.env import DB
 
 
@@ -152,11 +153,11 @@ class TRedlist(DB.Model):
 
 class TMaxThreatenedStatus(DB.Model):
     __tablename__ = "t_max_threatened_status"
-    __table_args__ = {"schema": "gn_biodivterritory"}
+    __table_args__ = {"schema": APP_SCHEMA_NAME}
     cd_nom = Column(Integer, primary_key=True)
     threatened = Column(Boolean, default=False, nullable=False)
     redlist_statut = Column(String)
     redlist_context = Column(String)
     id_source = Column(
-        Integer, ForeignKey("taxonomie.bib_redlist_source.id_source")
+        Integer, ForeignKey("taxonomie.bib_c_redlist_source.id_source")
     )

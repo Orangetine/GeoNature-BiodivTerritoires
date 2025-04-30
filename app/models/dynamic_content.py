@@ -16,12 +16,12 @@ from utils_flask_sqla.serializers import serializable
 
 from app import admin
 from app.core.env import DB
-
+from config.config import APP_SCHEMA_NAME
 
 @serializable
 class BibDynamicPagesCategory(DB.Model):
     __tablename__ = "bib_dynamic_pages_category"
-    __table_args__ = {"schema": current_app.config["APP_SCHEMA_NAME"]}
+    __table_args__ = {"schema": APP_SCHEMA_NAME}
 
     id_category = Column(Integer, primary_key=True)
     category_name = Column(String)
@@ -31,13 +31,13 @@ class BibDynamicPagesCategory(DB.Model):
 @serializable
 class TDynamicPages(DB.Model):
     __tablename__ = "t_dynamic_pages"
-    __table_args__ = {"schema": current_app.config["APP_SCHEMA_NAME"]}
+    __table_args__ = {"schema": APP_SCHEMA_NAME}
 
     id_page = Column(Integer, primary_key=True)
     id_category = Column(
         Integer,
         ForeignKey(
-            "gn_biodivterritory.bib_dynamic_pages_category.id_category"
+            f"{APP_SCHEMA_NAME}.bib_dynamic_pages_category.id_category"
         ),
     )
     title = Column(String)
