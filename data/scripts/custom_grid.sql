@@ -115,7 +115,7 @@ WITH
                  ref_geo.l_areas
              WHERE
                      left(area_code, 2) IN ('01', '03', '07', '15', '26', '38', '42', '43', '63', '69', '73', '74'))
---             WHERE LEFT(area_code, 2) IN ('07'))
+
 SELECT
     bib_areas_types.id_type
   , 'Maille 500m l' || grow || 'c' || gcol AS name
