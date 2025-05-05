@@ -149,15 +149,17 @@ def index() -> str:
 @rendered.route("/page/<string:url>")
 def special_pages(url: str) -> str:
     """
-
     :return:
     """
     try:
-        page = TDynamicPages.query.filter(TDynamicPages.url == url).first()
+        page = (
+            DB.session.query(TDynamicPages.title,
+                             TDynamicPages.content
+                             ).filter(TDynamicPages.url == url).first())
+    
         return render_template("dynamic_page.html", page=page)
     finally:
         DB.session.close()
-
 
 @rendered.route("/datas")
 def datas() -> str:
