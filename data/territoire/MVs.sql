@@ -145,7 +145,7 @@ CREATE MATERIALIZED VIEW gn_biodivterritory.mv_area_ntile_limit AS (
                 SELECT
                     id_area,
                     type_code,
-                    count_taxa AS count,
+                    count_threatened AS count,
                     ntile(5) OVER (ORDER BY count_threatened) AS ntile
                 FROM
                     gn_biodivterritory.mv_territory_general_stats),
@@ -192,7 +192,7 @@ CREATE MATERIALIZED VIEW gn_biodivterritory.mv_area_ntile_limit AS (
                                 max(count),
                                 ntile
                             FROM
-                                taxa
+                                threatened
                             GROUP BY
                                 ntile
                             UNION
