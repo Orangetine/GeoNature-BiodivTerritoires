@@ -19,7 +19,6 @@ class BibDatasTypes(DB.Model):
     type_protocol = Column(String)
     type_desc = Column(String)
 
-
 @serializable
 class TReleasedDatas(DB.Model):
     __tablename__ = "t_released_datas"

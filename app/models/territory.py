@@ -16,9 +16,9 @@ class MVGeneralStats(DB.Model):
     }
     id = Column(Integer, primary_key=True)
     count_occtax = Column(Integer)
-    count_dataset = Column(Integer)
     count_observer = Column(Integer)
     count_taxa = Column(Integer)
+    count_dataset = Column(Integer)
 
 
 @serializable
@@ -30,9 +30,10 @@ class MVTerritoryGeneralStats(DB.Model):
     type_code = Column(String, nullable=False)
     area_code = Column(String)
     area_name = Column(String)
+    count_data = Column(Integer)
     count_taxa = Column(Integer)
-    count_occtax = Column(Integer)
     count_threatened = Column(Integer)
+    count_occtax = Column(Integer)
     count_dataset = Column(Integer)
     count_date = Column(Integer)
     count_observer = Column(Integer)

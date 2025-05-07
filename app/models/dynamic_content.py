@@ -27,7 +27,6 @@ class BibDynamicPagesCategory(DB.Model):
     category_name = Column(String)
     category_desc = Column(String)
 
-
 @serializable
 class TDynamicPages(DB.Model):
     __tablename__ = "t_dynamic_pages"
@@ -62,9 +61,14 @@ admin.add_view(
         BibDynamicPagesCategory,
         DB.session,
         "Category",
-        category="Dynamic content",
+        category="Dynamic content"
     )
 )
 admin.add_view(
-    ModelView(TDynamicPages, DB.session, "Pages", category="Dynamic content"),
+    ModelView(
+        TDynamicPages, 
+        DB.session, 
+        "Pages", 
+        category="Dynamic content"
+    )
 )
