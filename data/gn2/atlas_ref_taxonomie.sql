@@ -18,4 +18,11 @@ GRANT ALL ON TABLE taxonomie.bdc_statut TO myuser;
 CREATE SCHEMA IF NOT EXISTS ref_nomenclatures;
 
 IMPORT FOREIGN SCHEMA ref_nomenclatures
-FROM SERVER geonaturedbserver INTO ref_nomenclatures ;
+LIMIT TO (ref_nomenclatures.t_nomenclatures, ref_nomenclatures.bib_nomenclatures_types)
+FROM SERVER geonaturedbserver INTO ref_nomenclatures;
+
+ALTER TABLE ref_nomenclatures.t_nomenclatures OWNER TO myuser;
+GRANT ALL ON TABLE ref_nomenclatures.t_nomenclatures TO myuser;
+
+ALTER TABLE ref_nomenclatures.bib_nomenclatures_types OWNER TO myuser;
+GRANT ALL ON TABLE ref_nomenclatures.bib_nomenclatures_types TO myuser;
