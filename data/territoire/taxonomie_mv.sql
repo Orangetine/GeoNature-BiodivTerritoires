@@ -2,7 +2,8 @@
 --------------------- MATERIALIZED VIEW taxonomie.taxref_liste_rouge_fr
 
 CREATE MATERIALIZED VIEW taxonomie.taxref_liste_rouge_fr AS
-	SELECT 
+	SELECT row_number() over() as id_lr, sr.* FROM(
+SELECT 
         tr.cd_nom, tr.cd_ref, tr.lb_nom, 
         tr.lb_auteur, tr.nom_vern, tr.id_rang, 
         tr.famille, LEFT(bs.code_statut, 2) as id_categorie_france, 
@@ -39,7 +40,7 @@ CREATE MATERIALIZED VIEW taxonomie.taxref_liste_rouge_fr AS
     WHERE cd_sig in ('ETATFRA','TERFXFR' , 'INSEER11', 'INSEED75', 'INSEED77',  
                     'INSEED78', 'INSEED91', 'INSEED92',  'INSEED93', 'INSEED94', 'INSEED95')
     AND regroupement_type = 'Liste rouge'
-    ORDER BY cd_nom ASC;
+    ORDER BY cd_nom ASC) sr;
 
 --------------------- MATERIALIZED VIEW taxonomie.taxref_protection_articles
 
@@ -155,17 +156,18 @@ COMMENT ON MATERIALIZED VIEW taxonomie.bib_c_redlist_categories IS 'Liste des ca
 --------------------- MATERIALIZED VIEW taxonomie.t_c_redlist
 
 CREATE MATERIALIZED VIEW taxonomie.t_c_redlist AS
-SELECT
-    ordre_statut as status_order,
-    taxref.cd_nom,
-    taxref.cd_ref,
-    id_categorie_france as category,
-    criteres_france as criteria,
-    id_source
-FROM
-    taxonomie.taxref_liste_rouge_fr
-    JOIN taxonomie.bib_c_redlist_source ON liste_rouge_source = bib_c_redlist_source.name_source
-    JOIN taxonomie.taxref ON taxref_liste_rouge_fr.cd_nom = taxref.cd_nom;
+SELECT row_number() over() as id_redlist, sr.* FROM(
+    SELECT
+        ordre_statut as status_order,
+        taxref.cd_nom,
+        taxref.cd_ref,
+        id_categorie_france as category,
+        criteres_france as criteria,
+        id_source
+    FROM
+        taxonomie.taxref_liste_rouge_fr
+        JOIN taxonomie.bib_c_redlist_source ON liste_rouge_source = bib_c_redlist_source.name_source
+        JOIN taxonomie.taxref ON taxref_liste_rouge_fr.cd_nom = taxref.cd_nom) sr;
 
 COMMENT ON MATERIALIZED VIEW taxonomie.t_c_redlist IS 'Liste des statuts de liste rouge par taxons';
 
