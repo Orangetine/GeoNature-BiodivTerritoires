@@ -28,6 +28,7 @@ echo "[$(date +'%H:%M:%S')] Création des MVs du schéma territory ..." &>> var/
 export PGPASSWORD=$user_pg_pass 
 time_temp=$SECONDS
 psql -d $db_name -U $user_pg -h $db_host -p $db_port\
+     -v _areas=$areas\
      -f data/territoire/territory_mv.sql &>> var/log/install_db.log
 echo "[$(date +'%H:%M:%S')] Passed - Duration : $((($SECONDS-$time_temp)/60))m$((($SECONDS-$time_temp)%60))s"
 
