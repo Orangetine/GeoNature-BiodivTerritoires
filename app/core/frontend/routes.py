@@ -95,6 +95,8 @@ def global_variables():
             for p in pages:
                 c_content["pages"].append(p._asdict())
 
+            dynamic_pages.append(c_content)
+
         values["dynamic_pages"] = dynamic_pages
         DB.session.commit()
         return values
