@@ -36,12 +36,24 @@ CREATE TABLE gn_biodivterritory.bib_datas_types (
     type_desc VARCHAR
 );
 
+---------------- Table gn_biodivterritory.t_released_datas
+
+CREATE TABLE gn_biodivterritory.t_released_datas (
+    id_data_release SERIAL PRIMARY KEY,
+    id_type INTEGER,
+    data_name VARCHAR,
+    data_desc TEXT,
+    data_url VARCHAR,
+    FOREIGN KEY (id_type) REFERENCES gn_biodivterritory.bib_datas_types (id_type)
+);
+
 ---------------- MATERIALIZED VIEW gn_biodivterritory.l_areas_type_selection
 
 CREATE MATERIALIZED VIEW gn_biodivterritory.l_areas_type_selection AS
+SELECT row_number() over() as id_selection, sr.* FROM(
 SELECT
     id_type,
-    CASE WHEN id_type = 25
+    CASE WHEN type_code = 'COM'
         THEN TRUE
         ELSE FALSE
     END AS searchable
@@ -50,7 +62,7 @@ FROM
 WHERE
     type_code IN (
         SELECT
-            unnest(string_to_array('M1,COM', ',')));
+            unnest(string_to_array(:'_areas', ',')))) sr;
 
 COMMENT ON COLUMN gn_biodivterritory.l_areas_type_selection.id_type IS 'reference to area id_type usable for app';
 COMMENT ON COLUMN gn_biodivterritory.l_areas_type_selection.searchable IS 'searchable area from API with autocomplete';
