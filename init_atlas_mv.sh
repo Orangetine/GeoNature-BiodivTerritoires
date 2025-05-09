@@ -8,7 +8,7 @@ sudo cp data/gn2/* /tmp/gn2/
 sudo cp data/gn2/atlas_ref_taxonomie.sql /tmp/gn2/atlas_ref_taxonomie.sql &>> var/log/install_db.log
 sudo sed -i "s/myuser;$/$user_pg;/" /tmp/gn2/atlas_ref_taxonomie.sql
 
-# Ajout de la table étrangère taxonomie.bdc_statut dans geonatureatlas 
+# Ajout de la table étrangère taxonomie.bdc_statut dans geonatureatlas et ref_nomenclatures
 echo "[$(date +'%H:%M:%S')] Importation schema taxonomie ..." &>> var/log/install_db.log
 export PGPASSWORD=$user_pg_pass 
 time_temp=$SECONDS
