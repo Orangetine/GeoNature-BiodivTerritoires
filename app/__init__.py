@@ -61,7 +61,7 @@ def create_app():
         )
 
         app.config["TAXHUB_URL"] = config(
-            "TAXHUB_URL", default="http://demo.geonature.fr/taxhub/"
+            "TAXHUB_URL", default="https://geonature.arb-idf.fr/taxhub"
         )
         app.config["TAXA_LINK_URL_TEMPLATE"] = config(
             "TAXA_LINK_URL_TEMPLATE",
