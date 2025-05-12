@@ -1,46 +1,48 @@
-
 --------------------- MATERIALIZED VIEW taxonomie.taxref_liste_rouge_fr
 
 CREATE MATERIALIZED VIEW taxonomie.taxref_liste_rouge_fr AS
-	SELECT row_number() over() as id_lr, sr.* FROM(
-SELECT 
-        tr.cd_nom, tr.cd_ref, tr.lb_nom, 
-        tr.lb_auteur, tr.nom_vern, tr.id_rang, 
-        tr.famille, LEFT(bs.code_statut, 2) as id_categorie_france, 
-        bs.rq_statut as criteres_france, bs.lb_type_statut as liste_rouge, 
-        url as fiche_espece, (regexp_matches(bs.full_citation, '<em>(.*?)</em>'))[1] as liste_rouge_source,  
-        (regexp_matches(bs.full_citation, '\m\d{4}\M'))[1]::integer as annee_publication,
-		CASE LEFT(bs.code_statut, 2) 
-        WHEN 'EX' THEN 
-            5
-        WHEN 'EW' THEN
-            10 
-        WHEN 'RE' THEN
-            15
-        WHEN 'CR' THEN
-            20
-        WHEN 'EN' THEN
-            25
-        WHEN 'VU' THEN
-            30
-        WHEN 'NT' THEN
-            35
-        WHEN 'LC' THEN
-            40
-        WHEN 'DD' THEN
-            45
-        WHEN 'NA' THEN
-            55
-        WHEN 'NE' THEN
-            60
-        ELSE NULL
-    END as ordre_statut
+    SELECT row_number() OVER () AS id_lr, sr.*
+        FROM (
+    SELECT DISTINCT ON (
+          tr.cd_nom,
+		  liste_rouge_source
+        )
+        tr.cd_nom,
+        tr.cd_ref,
+        tr.lb_nom,
+        tr.lb_auteur,
+        tr.nom_vern,
+        tr.id_rang,
+        tr.famille,
+        LEFT(bs.code_statut::text, 2) AS id_categorie_france,
+        bs.rq_statut AS criteres_france,
+        bs.lb_type_statut AS liste_rouge,
+        tr.url AS fiche_espece,
+        (regexp_matches(bs.full_citation, '<em>(.*?)</em>'))[1] AS liste_rouge_source,
+        (regexp_matches(bs.full_citation, '\m\d{4}\M'))[1]::integer AS annee_publication,
+        CASE LEFT(bs.code_statut::text, 2)
+            WHEN 'EX' THEN 5
+            WHEN 'EW' THEN 10
+            WHEN 'RE' THEN 15
+            WHEN 'CR' THEN 20
+            WHEN 'EN' THEN 25
+            WHEN 'VU' THEN 30
+            WHEN 'NT' THEN 35
+            WHEN 'LC' THEN 40
+            WHEN 'DD' THEN 45
+            WHEN 'NA' THEN 55
+            WHEN 'NE' THEN 60
+            ELSE NULL
+        END AS ordre_statut
     FROM taxonomie.taxref tr
-	    JOIN taxonomie.bdc_statut bs on tr.cd_nom = bs.cd_nom
-    WHERE cd_sig in ('ETATFRA','TERFXFR' , 'INSEER11', 'INSEED75', 'INSEED77',  
-                    'INSEED78', 'INSEED91', 'INSEED92',  'INSEED93', 'INSEED94', 'INSEED95')
-    AND regroupement_type = 'Liste rouge'
-    ORDER BY cd_nom ASC) sr;
+        JOIN taxonomie.bdc_statut bs ON tr.cd_nom = bs.cd_nom
+    WHERE bs.cd_sig IN ('ETATFRA','TERFXFR','INSEER11','INSEED75','INSEED77','INSEED78','INSEED91','INSEED92','INSEED93','INSEED94','INSEED95')
+    AND bs.regroupement_type = 'Liste rouge' 
+    ORDER BY
+        tr.cd_nom,
+        liste_rouge_source,
+        (regexp_matches(bs.full_citation, '\m\d{4}\M'))[1]::integer DESC) sr;
+
 
 --------------------- MATERIALIZED VIEW taxonomie.taxref_protection_articles
 
