@@ -60,9 +60,7 @@ def create_app():
             cast=Csv(),
         )
 
-        app.config["TAXHUB_URL"] = config(
-            "TAXHUB_URL", default="https://geonature.arb-idf.fr/taxhub"
-        )
+        app.config["TAXHUB_URL"] = config("TAXHUB_URL")
         app.config["TAXA_LINK_URL_TEMPLATE"] = config(
             "TAXA_LINK_URL_TEMPLATE",
             default="https://inpn.mnhn.fr/espece/cd_nom/[CDNOM]",
