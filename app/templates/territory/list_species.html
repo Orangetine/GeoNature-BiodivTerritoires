@@ -79,15 +79,22 @@
   const redListOrderKeys = () => Object.keys(redListOrder);
 
   const LRIcon = (category) => {
-    mediaIcon = document.createElement("img");
-    mediaIcon.classList.add("m-2");
-    mediaIcon.src = `/static/assets/images/uicn/${category.toLowerCase()}.svg`;
-    mediaIconSpan = document.createElement("span");
-    mediaIconSpan.classList.add();
-    mediaIconSpan.innerHTML = category;
-    mediaIcon.appendChild(mediaIconSpan);
-    return mediaIcon;
-  };
+  const container = document.createElement("div");
+  container.classList.add("d-flex", "align-items-center", "m-2");
+
+  const mediaIcon = document.createElement("img");
+  mediaIcon.classList.add("me-2");
+  mediaIcon.src = `/static/assets/images/uicn/${category.toLowerCase()}.svg`;
+  mediaIcon.alt = category;
+
+  const mediaIconSpan = document.createElement("span");
+  mediaIconSpan.textContent = category;
+
+  container.appendChild(mediaIcon);
+  <!-- container.appendChild(mediaIconSpan); -->
+
+  return container;
+};
 
   const statusRow = (values, type = null) => {
     const typGrp =
