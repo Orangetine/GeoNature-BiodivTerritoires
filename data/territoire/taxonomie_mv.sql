@@ -96,7 +96,8 @@ SELECT DISTINCT
         CASE WHEN liste_rouge in ('Liste rouge régionale', 'Liste rouge nationale')
 		    THEN 'France métropolitaine'
 	    END AS area_name,
-	    doc_url as url_source
+	    doc_url as url_source,
+        annee_publication
     FROM
         taxonomie.taxref_liste_rouge_fr lr
         JOIN taxonomie.bdc_statut st ON lr.cd_nom = st.cd_nom
