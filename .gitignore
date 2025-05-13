@@ -129,3 +129,8 @@ docker-compose.override.yml
 
 #Custom assets
 custom/
+
+# Test
+test/
+activate.sh
+
