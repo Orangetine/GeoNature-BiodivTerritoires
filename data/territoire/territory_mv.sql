@@ -102,7 +102,7 @@ BEGIN
         JOIN taxonomie.bib_c_redlist_source s ON s.id_source = t.id_source
         JOIN taxonomie.bib_c_redlist_categories c ON c.code_category = t.category
         WHERE t.cd_ref = arrow.cd_ref
-        ORDER BY c.priority_order
+        ORDER BY annee_publication DESC, c.priority_order
         LIMIT 1;
     END LOOP;
 END;
