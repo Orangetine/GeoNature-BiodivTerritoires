@@ -1,4 +1,4 @@
-. config/settings_atlas.ini
+. config/settings.ini
 sudo mkdir -p /tmp/gn2
 sudo cp data/gn2/* /tmp/gn2/
 
