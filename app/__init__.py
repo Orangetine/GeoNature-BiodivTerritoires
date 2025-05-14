@@ -3,6 +3,7 @@ import logging
 
 from decouple import Csv, config
 from flask import Flask, render_template
+from config.config import DEFAULT_AREA_TYPES
 
 from app.core.env import DB, admin, cache, ckeditor
 
@@ -56,7 +57,7 @@ def create_app():
         )
         app.config["FILTER_SECURED_AREA_TYPE"] = config(
             "FILTER_SECURED_AREA_TYPE",
-            default="COM",
+            default=DEFAULT_AREA_TYPES,
             cast=Csv(),
         )
 
