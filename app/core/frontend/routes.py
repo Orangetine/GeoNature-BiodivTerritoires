@@ -220,7 +220,7 @@ def territory(type_code: str, area_code: str, template: str = "") -> str:
             )
             .filter(
                 and_(BibAreasTypes.type_code == type_code.upper()),
-                LAreas.area_code == area_code,
+                LAreas.area_code == area_code.upper(),
             )
         )
         area_info = q_area_info.one()
