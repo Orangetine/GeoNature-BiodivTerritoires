@@ -37,7 +37,7 @@
     </div>
   </div>
 </div>
-
+<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
 <script>
   var surroundingAreasTable = $("#surroundingAreasTable").DataTable({
           ajax: {
@@ -59,7 +59,8 @@
               {data: "area_code"},
               {
                   data: function (row) {
-                      return '<a href="/territory/' + row.type_code + '/' + row.area_code + '"title="Voir la fiche de ' + row.area_name + '" data-toogle="tooltips">' + row.area_name + '</a>'
+                    const cleanedAreaName = cleanAreaName(row.area_name);
+                    return '<a href="/territory/' + row.type_code + '/' + row.area_code + '"title="Voir la fiche de ' + cleanedAreaName + '" data-toggle="tooltip">' + cleanedAreaName + '</a>'
                   }
               },
               {data: "count_occtax"},

@@ -5,6 +5,7 @@ from flask_admin.contrib import rediscli
 from pypnnomenclature.models import BibNomenclaturesTypes, TNomenclatures
 from redis import Redis
 from sqlalchemy import and_
+from config.config import DEFAULT_AREA_TYPES
 
 from app.core.env import DB, cache
 from app.models.datas import BibDatasTypes, TReleasedDatas
@@ -20,7 +21,7 @@ from app.models.taxonomy import (
 from .env import admin
 
 admin.add_view(rediscli.RedisCli(Redis()))
-
+DEFAULT_AREA_TYPES = DEFAULT_AREA_TYPES.split(",") # convert to list
 
 def create_tables(db):
     """[summary]
@@ -331,3 +332,10 @@ def init_custom_files():
                 os.path.join(os.getcwd(), f"app/static/custom/assets/{file}"),
                 "w",
             )
+
+def clean_area_name(area_name:str):
+    if any(code in area_name for code in DEFAULT_AREA_TYPES) and '-' in area_name:
+        return area_name.split('-', 1)[1].strip() # Split au premier tiret
+    else:
+        return area_name
+

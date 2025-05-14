@@ -9,6 +9,7 @@ from flask import (
 from sqlalchemy import and_
 
 from app.core.env import DB
+from app.core.utils import clean_area_name
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.dynamic_content import BibDynamicPagesCategory, TDynamicPages
 from app.models.ref_geo import BibAreasTypes, LAreas
@@ -253,6 +254,7 @@ def territory(type_code: str, area_code: str, template: str = "") -> str:
         return render_template(
             base_template,
             area_info=area_info,
+            clean_area_name = clean_area_name(area_info.area_name),
             area_info_dict=area_info._asdict(),
             gen_stats=gen_stats,
             legend_dict=legend_dict,
