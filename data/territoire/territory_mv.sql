@@ -53,9 +53,9 @@ CREATE MATERIALIZED VIEW gn_biodivterritory.l_areas_type_selection AS
 SELECT row_number() over() as id_selection, sr.* FROM(
 SELECT
     id_type,
-    CASE WHEN type_code = 'COM'
-        THEN TRUE
-        ELSE FALSE
+    CASE WHEN type_code = 'M1'
+        THEN FALSE
+        ELSE TRUE
     END AS searchable
 FROM
     ref_geo.bib_areas_types
