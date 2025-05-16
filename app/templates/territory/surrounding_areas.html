@@ -39,6 +39,7 @@
 </div>
 <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
 <script>
+  const exportTitle = "La biodiversité aux alentours de {{clean_area_name}} ({{ area_info.area_code }}) \n {{site_name | safe}}"
   var surroundingAreasTable = $("#surroundingAreasTable").DataTable({
           ajax: {
               url: '/api/surrounding_areas/{{ area_info.type_code }}/{{ area_info.area_code }}/' + buffer,
@@ -51,11 +52,29 @@
           dom: 'Bftrp',
           buttons: [
               {extend: 'copy', className: 'btn btn-info'},
-              {extend: 'csvHtml5', className: 'btn btn-info'},
-              {extend: 'pdf', className: 'btn btn-info'},
+              {extend: 'csvHtml5', className: 'btn btn-info', title: exportTitle},
+              {
+                extend: 'pdf',
+                className: 'btn btn-info',
+                text: 'PDF',
+                title : exportTitle,
+                orientation: 'landscape',
+                customize: function (doc) {
+                  doc.defaultStyle.fontSize = 8;
+                  doc.content[1].table.widths = Array(doc.content[1].table.body[0].length).fill('*');
+                }
+              },
+          ],
+          columnDefs: [
+            {className: "text-center align-middle", targets: [0,3,4,5,6,7,8]},
+            {className: "align-middle", targets: [1,2]}
           ],
           columns: [
-              {data: "type_desc"},
+              {
+                data: function (row) {
+                  return '<p title="' + row.type_name +'" data-toggle="tooltip">'+ row.type_desc+ '</p>'
+                }
+              },
               {data: "area_code"},
               {
                   data: function (row) {
