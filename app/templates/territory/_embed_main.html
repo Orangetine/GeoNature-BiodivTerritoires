@@ -1,6 +1,9 @@
-{% extends "core/embed_layout.html" %} {% block title %} La biodiversité de
-{{area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
-{% endblock %} {% block head %} {{ super() }} {% endblock %} {% block content %}
+{% extends "core/embed_layout.html" %} 
+{% block title %} 
+La biodiversité de {{area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
+{% endblock %} 
+{% block head %} {{ super() }} {% endblock %} 
+{% block content %}
 
 <script type="text/javascript">
   var buffer = {{ default_buffer }};
@@ -54,7 +57,14 @@
 <div id="territorySynthesis">
   <div class="jumbotron paral paralsec3 areaName paral_img">
     <div class="container">
-      <h1 class="display-1">{{ area_info.area_name }}</h1>
+      <h1 class="display-1">{{ clean_area_name }}</h1>
+      <p class="lead">
+        <span class="badge badge-primary" 
+        id="select2-result-area__type_name">{{ area_info.type_name }}</span>
+         | 
+        <span class="badge badge-primary" 
+        id="select2-result-area__type_name">code {{ area_info.area_code }}</span>
+      </p>
       <div class="text-center pt-2">
         <i class="fa fa-2x fa-solid fa-arrow-down text-white"></i>
       </div>
@@ -72,7 +82,7 @@
           <div class="col col-sm-12 col-lg-2 text-center align-self-center">
             <i class="fas fa-info-circle fa-10x"></i>
           </div>
-          <div class="col col-sm-12 col-lg-7 align-self-center">
+          <div class="col col-sm-12 col-lg-7 align-self-center text-white">
             {{ intro.content | safe }}
           </div>
           <div class="col col-sm-12 col-lg-3 align-self-center">
@@ -296,6 +306,67 @@
           </div>
           <div class="col mt-3">
             {% include "territory/list_species.html" %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Block 4 -->
+    <div class="card">
+      <div class="card-header blocks" id="headingSurroundingAreas">
+        
+          <h1>
+            <div class="icon-rounded shadow bg-primary-light">
+              <i class="fas fa-map-signs"></i>
+            </div>
+            <span
+              data-toggle="tooltip"
+              data-placement="right"
+              data-html="true"
+              title="Le tableau suivant liste l'ensemble des territoires en recouvrement ou limitrophes (communes voisines, zones naturelles, etc.) 
+                            par rapport au territoire courant <u>et</u> à sa zone tampon."
+            >
+              Données de synthèse sur les territoires alentours
+            </span>
+          </h1>
+      </div>
+      <div id="contentSurroundingAreas">
+        <div class="card-body">
+          <div class="col">
+            <div class="row">
+              <div class="col col-lg-9 col-sm-12">
+                <div class="card border-primary shadow h-100">
+                  <div class="card-header info h-100">
+                    <i class="fas fa-info text-primary"></i>
+                    Le tableau suivant liste l'ensemble des territoires en
+                    recouvrement ou limitrophes (communes voisines, zones
+                    naturelles, etc.) par rapport au territoire courant
+                    <u>et</u> à sa zone tampon. Le nombre de territoires
+                    associés est donc dépendant de la distance tampon
+                    (sélectionnée précédemment).
+                  </div>
+                </div>
+              </div>
+              <div class="col col-lg-3 col-sm-12">
+                <div class="card border-warning shadow h-100">
+                  <div class="card-header info h-100">
+                    <i class="fas fa-lightbulb text-warning"></i>
+                    Vous pouvez télécharger le tableau en le copiant dans votre
+                    presse-papier (Copy) ou en l'exportant au format CSV.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card text-white bg-dark mt-3 mb-3 shadow">
+              <div class="card-header info">
+                <i class="fas fa-drafting-compass"></i>
+                Vous pouvez modifier l'emprise de l'analyse en sélectionnant
+                <a href="#territoryIntro">ici</a> la distance tampon de votre
+                choix.
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            {% include "territory/surrounding_areas.html" %}
           </div>
         </div>
       </div>
