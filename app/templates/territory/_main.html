@@ -1,6 +1,6 @@
 {% extends "core/layout.html" %}
 {% block title %} 
-La biodiversité de {{ area_info.area_name }} ({{ area_info.type_name }} : {{ area_info.area_code }})
+La biodiversité de {{ clean_area_name }} ({{ area_info.area_code }})
 {% endblock %} 
 {% block head %} 
 {{ super() }} 
@@ -44,7 +44,13 @@ La biodiversité de {{ area_info.area_name }} ({{ area_info.type_name }} : {{ ar
   <div class="jumbotron paral paralsec3 areaName paral_img">
     <div class="container">
       <h1 class="display-1">{{clean_area_name}}</h1>
-      <!-- <p class="lead">{{ area_info.type_name }} | code {{ area_info.area_code }}</p> -->
+      <p class="lead">
+        <span class="badge badge-primary" 
+        id="select2-result-area__type_name">{{ area_info.type_name }}</span>
+         | 
+        <span class="badge badge-primary" 
+        id="select2-result-area__type_name">code {{ area_info.area_code }}</span>
+      </p>
     </div>
   </div>
   <div class="jumbotron paral paralsec1">
@@ -59,7 +65,7 @@ La biodiversité de {{ area_info.area_name }} ({{ area_info.type_name }} : {{ ar
           <div class="col col-sm-12 col-lg-2 text-center align-self-center">
             <i class="fas fa-info-circle fa-10x"></i>
           </div>
-          <div class="col col-sm-12 col-lg-7 align-self-center">
+          <div class="col col-sm-12 col-lg-7 align-self-center text-white">
             {{ intro.content | safe }}
           </div>
           <div class="col col-sm-12 col-lg-3 align-self-center">
