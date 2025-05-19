@@ -322,16 +322,15 @@ def create_special_pages():
 
 
 def init_custom_files():
-    filenames = ["custom.css", "custom.js"]
-    for file in filenames:
-        fullpath = os.path.join(
-            os.getcwd(), f"app/static/custom/assets/{file}"
-        )
+    assets_dir = os.path.join(current_app.root_path, 'static', 'custom', 'assets')
+    os.makedirs(assets_dir, exist_ok=True)
+
+    for file in ["custom.css", "custom.js"]:
+        fullpath = os.path.join(assets_dir, file)
         if not os.path.exists(fullpath):
-            open(
-                os.path.join(os.getcwd(), f"app/static/custom/assets/{file}"),
-                "w",
-            )
+            with open(fullpath, "w") as f:
+                f.write("")
+
 
 def clean_area_name(area_name:str):
     if any(code in area_name for code in DEFAULT_AREA_TYPES) and '-' in area_name:
