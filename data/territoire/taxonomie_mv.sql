@@ -1,5 +1,5 @@
 --------------------- MATERIALIZED VIEW taxonomie.taxref_liste_rouge_fr
-
+DROP MATERIALIZED VIEW IF EXISTS taxonomie.taxref_liste_rouge_fr CASCADE;
 CREATE MATERIALIZED VIEW taxonomie.taxref_liste_rouge_fr AS
     SELECT row_number() OVER () AS id_lr, sr.*
         FROM (
@@ -45,7 +45,7 @@ CREATE MATERIALIZED VIEW taxonomie.taxref_liste_rouge_fr AS
 
 
 --------------------- MATERIALIZED VIEW taxonomie.taxref_protection_articles
-
+DROP MATERIALIZED VIEW IF EXISTS taxonomie.taxref_protection_articles CASCADE;
 CREATE MATERIALIZED VIEW taxonomie.taxref_protection_articles AS
     SELECT DISTINCT code_statut as cd_protection, 
         split_part(label_statut, ':', 2) as article, 
@@ -63,7 +63,7 @@ CREATE MATERIALIZED VIEW taxonomie.taxref_protection_articles AS
     ORDER BY code_statut ASC;
 
 --------------------- MATERIALIZED VIEW taxonomie.taxref_protection_especes
-
+DROP MATERIALIZED VIEW IF EXISTS taxonomie.taxref_protection_especes CASCADE;
 CREATE MATERIALIZED VIEW taxonomie.taxref_protection_especes AS
     SELECT bs.cd_nom, 
         bs.code_statut as cd_protection, 
@@ -78,7 +78,7 @@ CREATE MATERIALIZED VIEW taxonomie.taxref_protection_especes AS
 CREATE INDEX fki_cd_nom_taxref_protection_especes ON taxonomie.taxref_protection_especes USING btree (cd_nom);
 
 --------------------- MATERIALIZED VIEW taxonomie.bib_c_redlist_source
-
+DROP MATERIALIZED VIEW IF EXISTS taxonomie.bib_c_redlist_source CASCADE;
 CREATE MATERIALIZED VIEW taxonomie.bib_c_redlist_source AS
 SELECT 
     row_number() OVER () AS id_source, sr.*
@@ -107,7 +107,7 @@ SELECT DISTINCT
 	) sr ;
 
 --------------------- MATERIALIZED VIEW taxonomie.bib_c_redlist_categories
-
+DROP MATERIALIZED VIEW IF EXISTS taxonomie.bib_c_redlist_categories CASCADE;
 CREATE MATERIALIZED VIEW taxonomie.bib_c_redlist_categories AS
 SELECT DISTINCT
     id_categorie_france AS code_category,
@@ -157,7 +157,7 @@ ORDER BY priority_order ASC;
 COMMENT ON MATERIALIZED VIEW taxonomie.bib_c_redlist_categories IS 'Liste des catégories de statuts de liste rouge';
 
 --------------------- MATERIALIZED VIEW taxonomie.t_c_redlist
-
+DROP MATERIALIZED VIEW IF EXISTS taxonomie.t_c_redlist CASCADE;
 CREATE MATERIALIZED VIEW taxonomie.t_c_redlist AS
 SELECT row_number() over() as id_redlist, sr.* FROM(
     SELECT

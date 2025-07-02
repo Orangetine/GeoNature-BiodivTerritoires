@@ -1,7 +1,7 @@
+DROP SCHEMA IF EXISTS gn_biodivterritory CASCADE;
 CREATE SCHEMA gn_biodivterritory;
 
 ---------------- Table gn_biodivterritory.bib_dynamic_pages_category 
-
 CREATE TABLE gn_biodivterritory.bib_dynamic_pages_category (
     id_category SERIAL PRIMARY KEY,
     category_name VARCHAR,
