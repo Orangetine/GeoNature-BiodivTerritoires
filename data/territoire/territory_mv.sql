@@ -147,28 +147,20 @@ count_observer AS (
     SELECT COUNT(*) as count 
     FROM (
             SELECT DISTINCT observateurs
-            FROM atlas.vm_observations)
+            FROM atlas.vm_observations) as distinct_obs
 ),
 count_taxa AS (
     SELECT COUNT(DISTINCT cd_ref) AS count
         FROM atlas.vm_taxons
-),
-count_dataset AS (
-    SELECT COUNT(*) AS count
-    FROM ( 
-        SELECT DISTINCT id_dataset
-        FROM atlas.vm_observations) 
 )
 SELECT
     row_number() OVER () AS id,
         count_occtax.count AS count_occtax,
         count_observer.count AS count_observer,
-        count_taxa.count AS count_taxa,
-        count_dataset.count AS count_dataset
+        count_taxa.count AS count_taxa
     FROM
         count_occtax,
         count_observer,
-        count_dataset,
         count_taxa;
 
 ------------ Materialized View gn_biodivterritory.mv_territory_general_stats
@@ -183,7 +175,6 @@ SELECT
     count(DISTINCT taxref.cd_ref) AS count_taxa,
     count(DISTINCT taxref.cd_ref) FILTER (WHERE gn_biodivterritory.t_max_threatened_status.threatened = TRUE) AS count_threatened,
     count(DISTINCT syntheseff.id_synthese) AS count_occtax,
-    count(DISTINCT syntheseff.id_dataset) AS count_dataset,
     count(DISTINCT syntheseff.dateobs) AS count_date,
     count(DISTINCT syntheseff.observateurs) AS count_observer,
     max(dateobs) AS last_obs,
