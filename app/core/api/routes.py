@@ -197,9 +197,11 @@ def get_surrounding_area(
     """
     try:
         area = (
-            DB.session.query(LAreas.id_area, LAreas.geom).filter(
+            DB.session.query(LAreas.id_area, LAreas.geom_local)
+            .join(BibAreasTypes, BibAreasTypes.id_type == LAreas.id_type)
+            .filter(
                 LAreas.area_code == area_code,
-                BibAreasTypes.type_code == type_code,
+                BibAreasTypes.type_code == type_code.upper(),
             )
         ).first()
 
@@ -228,7 +230,7 @@ def get_surrounding_area(
                 MVTerritoryGeneralStats.area_code,
                 MVTerritoryGeneralStats.area_name,
                 MVTerritoryGeneralStats.id_area,
-                MVTerritoryGeneralStats.count_dataset,
+                #MVTerritoryGeneralStats.count_dataset,
                 MVTerritoryGeneralStats.count_observer,
                 MVTerritoryGeneralStats.count_date,
                 MVTerritoryGeneralStats.count_taxa,
@@ -243,7 +245,7 @@ def get_surrounding_area(
             .filter(
                 and_(
                     MVTerritoryGeneralStats.geom_local.ST_Intersects(
-                        func.ST_Buffer(area.geom, buffer)
+                        func.ST_Buffer(area.geom_local, buffer)
                     ),
                     BibAreasTypes.id_type.in_(select),
                     MVTerritoryGeneralStats.id_area != area.id_area,
@@ -321,7 +323,7 @@ def get_geojson_area(type_code: str, area_code: str) -> Response:
                 BibAreasTypes.type_desc,
                 LAreas.area_name,
                 LAreas.area_code,
-                func.ST_Transform(LAreas.geom, 4326).label("geom"),
+                LAreas.the_geom.label("geom"),
             )
             .join(
                 LAreas, LAreas.id_type == BibAreasTypes.id_type, isouter=True
@@ -381,7 +383,7 @@ def get_grid_datas(id_area: int, buffer: int, grid: str) -> Response:
         ).filter(
             func.ST_Intersects(
                 MVTerritoryGeneralStats.geom_local,
-                func.ST_Buffer(area.geom, buffer),
+                func.ST_Buffer(area.geom_local, buffer),
             )
         )
         datas = qgrid.all()
@@ -742,95 +744,56 @@ def get_data_over_taxogroup(id_area: int) -> Response:
     finally:
         DB.session.close()
 
+def build_group2inpn_query(id_area, buffer=None, is_surrounding=False):
+    query = (
+        DB.session.query(
+            Taxref.group2_inpn,
+            funcfilter(
+                func.count(distinct(Taxref.cd_ref)),
+                TMaxThreatenedStatus.threatened.is_(True),
+            ).label("threatened"),
+            funcfilter(
+                func.count(distinct(Taxref.cd_ref)),
+                TMaxThreatenedStatus.threatened.isnot(True),
+            ).label("not_threatened"),
+        )
+        .join(Synthese, Synthese.cd_nom == Taxref.cd_nom)
+        .outerjoin(
+            TMaxThreatenedStatus, TMaxThreatenedStatus.cd_nom == Taxref.cd_ref
+        )
+        .join(LAreas, LAreas.id_area == id_area)
+        .filter(
+            LAreas.enable,
+            Synthese.id_nomenclature_observation_status != absent_id,
+            Taxref.cd_nom == Taxref.cd_ref,
+            Taxref.id_rang == "ES",
+        )
+        .group_by(Taxref.group2_inpn)
+        .order_by(Taxref.group2_inpn)
+    )
+
+    if is_surrounding:
+        query = query.filter(Synthese.the_geom_local.ST_DWithin(LAreas.geom_local, buffer))
+
+    if not is_secured_area(id_area):
+        query = query.filter(
+            Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
+            Synthese.id_nomenclature_sensitivity == sensitivity_id,
+        )
+
+    return query.all()
+
 
 @api.route("/charts/synthesis/group2_inpn_species/<int:id_area>/<int:buffer>")
 @api.route("/charts/synthesis/group2_inpn_species/<int:id_area>")
 @cache.cached(timeout=CACHE_TIMEOUT)
-def get_surrounding_count_species_by_group2inpn(
-    id_area: int, buffer: int = 10000
-) -> Response:
-    """
-
-    :param id_area:
-    :return:
-    """
+def get_surrounding_count_species_by_group2inpn(id_area: int, buffer: int = 10000) -> Response:
     try:
-        query_surrounding_territory = (
-            DB.session.query(
-                Taxref.group2_inpn,
-                funcfilter(
-                    func.count(distinct(Taxref.cd_ref)),
-                    TMaxThreatenedStatus.threatened.is_(True),
-                ).label("threatened"),
-                funcfilter(
-                    func.count(distinct(Taxref.cd_ref)),
-                    TMaxThreatenedStatus.threatened.isnot(True),
-                ).label("not_threatened"),
-            )
-            .distinct()
-            .filter(LAreas.id_area == id_area, LAreas.enable)
-            .filter(Synthese.cd_nom == Taxref.cd_nom)
-            .filter(
-                Synthese.id_nomenclature_observation_status != absent_id,
-            )
-            .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
-            .filter(Synthese.the_geom_local.ST_DWithin(LAreas.geom, buffer))
-            .outerjoin(
-                TMaxThreatenedStatus,
-                TMaxThreatenedStatus.cd_nom == Taxref.cd_ref,
-            )
-            .group_by(Taxref.group2_inpn)
-            .order_by(Taxref.group2_inpn)
-        )
+        surrounding_data = build_group2inpn_query(id_area, buffer, is_surrounding=True)
+        territory_data = build_group2inpn_query(id_area)
 
-        if not is_secured_area(id_area):
-            query_surrounding_territory = query_surrounding_territory.filter(
-                Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
-                Synthese.id_nomenclature_sensitivity == sensitivity_id,
-            )
-
-        surrounding_territory_data = query_surrounding_territory.all()
-
-        query_territory = (
-            DB.session.query(
-                Taxref.group2_inpn,
-                funcfilter(
-                    func.count(distinct(Taxref.cd_ref)),
-                    TMaxThreatenedStatus.threatened.is_(True),
-                ).label("threatened"),
-                funcfilter(
-                    func.count(distinct(Taxref.cd_ref)),
-                    TMaxThreatenedStatus.threatened.isnot(True),
-                ).label("not_threatened"),
-            )
-            .distinct()
-            .filter(LAreas.id_area == id_area, LAreas.enable)
-            .filter(Synthese.cd_nom == Taxref.cd_nom)
-            .filter(
-                Synthese.id_nomenclature_observation_status != absent_id,
-            )
-            .filter(Taxref.cd_nom == Taxref.cd_ref, Taxref.id_rang == "ES")
-            .filter(CorAreaSynthese.id_synthese == Synthese.id_synthese)
-            .filter(CorAreaSynthese.id_area == LAreas.id_area)
-            .outerjoin(
-                TMaxThreatenedStatus,
-                TMaxThreatenedStatus.cd_nom == Taxref.cd_ref,
-            )
-            .group_by(Taxref.group2_inpn)
-            .order_by(Taxref.group2_inpn)
-        )
-        if not is_secured_area(id_area):
-            query_territory = query_territory.filter(
-                Synthese.id_nomenclature_diffusion_level == diffusion_level_id,
-                Synthese.id_nomenclature_sensitivity == sensitivity_id,
-            )
-
-        territory_data = query_territory.all()
-        taxo_groups = list(
-            set(g.group2_inpn for g in surrounding_territory_data)
-        )
-        taxo_groups.sort()
-
+        taxo_groups = sorted(set(r.group2_inpn for r in surrounding_data))
+    
         response = {}
         response["labels"] = taxo_groups
         response["surrounding"] = {
@@ -842,7 +805,7 @@ def get_surrounding_count_species_by_group2inpn(
             "threatened": [],
         }
         for t in taxo_groups:
-            for r in surrounding_territory_data:
+            for r in surrounding_data:
                 if r.group2_inpn == t:
                     response["surrounding"]["threatened"].append(r.threatened)
                     response["surrounding"]["not_threatened"].append(
@@ -854,6 +817,7 @@ def get_surrounding_count_species_by_group2inpn(
                     response["territory"]["not_threatened"].append(
                         r.not_threatened
                     )
+
         DB.session.commit()
         return (
             jsonify(response),
@@ -862,7 +826,8 @@ def get_surrounding_count_species_by_group2inpn(
     except Exception as e:
         current_app.logger.error(
             f"<get_surrounding_count_species_by_group2inpn> ERROR: {e}"
-        )
+            )
         return {"Error": str(e)}, 400
     finally:
         DB.session.close()
+        
