@@ -119,7 +119,7 @@ def create_app():
             init_custom_files,
         )
 
-        create_tables(DB)
+        #create_tables(DB)
 
         create_special_pages()
         init_custom_files()
