@@ -319,6 +319,7 @@ def create_special_pages():
             DB.session.add(page)
 
     DB.session.commit()
+    DB.session.close()
 
 
 def init_custom_files():
