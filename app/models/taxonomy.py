@@ -35,8 +35,8 @@ class TaxrefProtectionEspeces(DB.Model):
 # Foreign Table
 @serializable
 class Taxref(DB.Model):
-    __tablename__ = "taxref"
-    __table_args__ = {"schema": "taxonomie"}
+    __tablename__ = "vm_taxref"
+    __table_args__ = {"schema": "atlas"}
     cd_nom = Column(Integer, primary_key=True)
     cd_ref = Column(Integer)  
     cd_sup = Column(Integer)
