@@ -58,7 +58,7 @@ SELECT
         ELSE TRUE
     END AS searchable
 FROM
-    ref_geo.bib_areas_types
+    atlas.vm_bib_areas_types
 WHERE
     type_code IN (
         SELECT
@@ -114,18 +114,18 @@ CREATE EXTENSION IF NOT EXISTS unaccent;
 
 CREATE MATERIALIZED VIEW gn_biodivterritory.mv_l_areas_autocomplete AS (
     SELECT DISTINCT
-        l_areas.id_area AS id,
-        bib_areas_types.type_name AS type_name,
-        lower(unaccent (l_areas.area_name)) AS search_area_name,
-        bib_areas_types.type_desc AS type_desc,
-        bib_areas_types.type_code AS type_code,
-        l_areas.area_name AS area_name,
-        l_areas.area_code AS area_code
+        vm_l_areas.id_area AS id,
+        vm_bib_areas_types.type_name AS type_name,
+        lower(unaccent (vm_l_areas.area_name)) AS search_area_name,
+        vm_bib_areas_types.type_desc AS type_desc,
+        vm_bib_areas_types.type_code AS type_code,
+        vm_l_areas.area_name AS area_name,
+        vm_l_areas.area_code AS area_code
     FROM
-        ref_geo.bib_areas_types
-    LEFT OUTER JOIN ref_geo.l_areas ON l_areas.id_type = ref_geo.bib_areas_types.id_type
+        atlas.vm_bib_areas_types
+    LEFT OUTER JOIN atlas.vm_l_areas ON vm_l_areas.id_type = atlas.vm_bib_areas_types.id_type
     NATURAL JOIN synthese.cor_area_synthese
-    JOIN gn_biodivterritory.l_areas_type_selection ON l_areas.id_type = l_areas_type_selection.id_type
+    JOIN gn_biodivterritory.l_areas_type_selection ON vm_l_areas.id_type = l_areas_type_selection.id_type
 WHERE
     cor_area_synthese.id_area IS NOT NULL
     AND l_areas_type_selection.searchable);
@@ -165,36 +165,87 @@ SELECT
 
 ------------ Materialized View gn_biodivterritory.mv_territory_general_stats
 
-CREATE MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats AS
-SELECT
-    l_areas.id_area,
-    bib_areas_types.type_code,
-    l_areas.area_code,
-    l_areas.area_name,
-    count(DISTINCT syntheseff.id_synthese) AS count_data,
-    count(DISTINCT taxref.cd_ref) AS count_taxa,
-    count(DISTINCT taxref.cd_ref) FILTER (WHERE gn_biodivterritory.t_max_threatened_status.threatened = TRUE) AS count_threatened,
-    count(DISTINCT syntheseff.id_synthese) AS count_occtax,
-    count(DISTINCT syntheseff.dateobs) AS count_date,
-    count(DISTINCT syntheseff.observateurs) AS count_observer,
-    max(dateobs) AS last_obs,
-    l_areas.geom AS geom_local,
-    st_transform (l_areas.geom, 4326) AS geom_4326
-FROM
-    synthese.syntheseff
-    JOIN synthese.cor_area_synthese ON syntheseff.id_synthese = cor_area_synthese.id_synthese
-    JOIN ref_geo.l_areas ON cor_area_synthese.id_area = l_areas.id_area
-    JOIN gn_biodivterritory.l_areas_type_selection ON l_areas_type_selection.id_type = l_areas.id_type
-    JOIN ref_geo.bib_areas_types ON l_areas_type_selection.id_type = bib_areas_types.id_type
-    JOIN taxonomie.taxref ON syntheseff.cd_nom = taxref.cd_nom
-    LEFT OUTER JOIN gn_biodivterritory.t_max_threatened_status ON gn_biodivterritory.t_max_threatened_status.cd_nom = taxonomie.taxref.cd_ref
+-- Vue matérialisée intermédiaire avec toutes les jointures de base
 
+-- CREATE MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats AS
+-- SELECT
+--     vm_l_areas.id_area,
+--     vm_bib_areas_types.type_code,
+--     vm_l_areas.area_code,
+--     vm_l_areas.area_name,
+--     count(DISTINCT syntheseff.id_synthese) AS count_data,
+--     count(DISTINCT vm_taxref.cd_ref) AS count_taxa,
+--     count(DISTINCT vm_taxref.cd_ref) FILTER (WHERE gn_biodivterritory.t_max_threatened_status.threatened = TRUE) AS count_threatened,
+--     count(DISTINCT syntheseff.id_synthese) AS count_occtax,
+--     count(DISTINCT syntheseff.dateobs) AS count_date,
+--     count(DISTINCT syntheseff.observateurs) AS count_observer,
+--     max(dateobs) AS last_obs,
+--     vm_l_areas.geom_local AS geom_local,
+--     vm_l_areas.the_geom AS geom_4326
+-- FROM
+--     synthese.syntheseff
+--     JOIN atlas.vm_cor_area_synthese ON syntheseff.id_synthese = vm_cor_area_synthese.id_synthese
+--     JOIN atlas.vm_l_areas ON vm_cor_area_synthese.id_area = vm_l_areas.id_area
+--     JOIN gn_biodivterritory.l_areas_type_selection ON l_areas_type_selection.id_type = vm_l_areas.id_type
+--     JOIN atlas.vm_bib_areas_types ON l_areas_type_selection.id_type = vm_bib_areas_types.id_type
+--     JOIN atlas.vm_taxref ON syntheseff.cd_nom = vm_taxref.cd_nom
+--     LEFT OUTER JOIN gn_biodivterritory.t_max_threatened_status ON gn_biodivterritory.t_max_threatened_status.cd_nom = atlas.vm_taxref.cd_ref
+
+-- GROUP BY
+--     vm_l_areas.id_area,
+--     vm_l_areas.area_code,
+--     vm_l_areas.area_name,
+--     vm_bib_areas_types.type_code,
+--     vm_l_areas.geom_local,
+--     vm_l_areas.the_geom;
+
+-- Requête Optimisée
+
+CREATE MATERIALIZED VIEW gn_biodivterritory.mv_territory_general_stats AS
+WITH base AS (
+    SELECT
+        s.id_synthese,
+        s.cd_nom,
+        s.dateobs,
+        s.observateurs,
+        a.id_area,
+        t.type_code,
+        tx.cd_ref,
+        ts.threatened,
+        a.area_code,
+        a.area_name,
+        a.geom_local,
+        a.the_geom
+    FROM synthese.syntheseff AS s 
+    JOIN atlas.vm_cor_area_synthese AS ca ON s.id_synthese = ca.id_synthese
+    JOIN atlas.vm_l_areas AS a ON ca.id_area = a.id_area
+    JOIN gn_biodivterritory.l_areas_type_selection AS sel ON a.id_type = sel.id_type
+    JOIN atlas.vm_bib_areas_types AS t ON sel.id_type = t.id_type
+    JOIN atlas.vm_taxref AS tx ON s.cd_nom = tx.cd_nom
+    LEFT OUTER JOIN gn_biodivterritory.t_max_threatened_status AS ts ON tx.cd_ref = ts.cd_nom
+)
+SELECT
+    id_area,
+    type_code,
+    area_code,
+    area_name,
+    COUNT(DISTINCT id_synthese)   AS count_data,
+    COUNT(DISTINCT cd_ref)        AS count_taxa,
+    COUNT(DISTINCT cd_ref) FILTER (WHERE threatened) AS count_threatened,
+    COUNT(DISTINCT id_synthese)   AS count_occtax,   
+    COUNT(DISTINCT dateobs)       AS count_date,
+    COUNT(DISTINCT observateurs)  AS count_observer,
+    MAX(dateobs)                  AS last_obs,
+    geom_local,
+    the_geom                      AS geom_4326
+FROM base
 GROUP BY
-    l_areas.id_area,
-    l_areas.area_code,
-    l_areas.area_name,
-    bib_areas_types.type_code,
-    l_areas.geom;
+    id_area,
+    type_code,
+    area_code,
+    area_name,
+    geom_local,
+    the_geom;
 
 CREATE UNIQUE INDEX ON gn_biodivterritory.mv_territory_general_stats (id_area);
 CREATE INDEX ON gn_biodivterritory.mv_territory_general_stats (type_code);
