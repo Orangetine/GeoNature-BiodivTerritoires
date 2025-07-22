@@ -336,3 +336,7 @@ CREATE MATERIALIZED VIEW gn_biodivterritory.mv_area_ntile_limit AS
 SELECT 
     row_number() OVER () AS id, *
 FROM u ORDER BY type, ntile;
+
+GRANT USAGE ON SCHEMA gn_biodivterritory to geonatatlas;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA gn_biodivterritory to geonatatlas;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA gn_biodivterritory to geonatatlas;

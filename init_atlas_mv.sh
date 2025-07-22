@@ -1,6 +1,7 @@
 . config/settings.ini
 mkdir -p /tmp/gn2
 cp data/gn2/* /tmp/gn2/
+mkdir -p var/log
 
 # Vide le fichier de log
 > var/log/install_db.log

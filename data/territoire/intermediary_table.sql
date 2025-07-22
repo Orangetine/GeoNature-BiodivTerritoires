@@ -46,13 +46,13 @@ SELECT
      , a.area_name                              AS area_name
      , a.id_type                                AS id_type
      , a.geom                                   AS geom_local    
-     , st_transform(a.geom, 4326)               AS the_geom
-     , st_asgeojson(st_transform(a.geom, 4326)) AS area_geojson
+     , a.geom_4326                              AS the_geom
+     , st_asgeojson(a.geom_4326)                AS area_geojson
      , ''::text                                 AS description
      , a.enable
 FROM ref_geo.l_areas a
 JOIN ref_geo.bib_areas_types b on a.id_type = b.id_type
-    JOIN atlas.t_layer_territoire layer ON ST_INTERSECTS(layer.the_geom, st_transform(a.geom, 3857))
+    JOIN atlas.t_layer_territoire layer ON ST_INTERSECTS(layer.the_geom, a.geom_4326)
 WHERE
     enable = TRUE AND
     (b.type_code IN (
