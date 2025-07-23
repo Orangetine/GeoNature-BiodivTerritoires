@@ -2,7 +2,6 @@ import os
 
 from flask import current_app
 from flask_admin.contrib import rediscli
-from pypnnomenclature.models import BibNomenclaturesTypes, TNomenclatures
 from redis import Redis
 from sqlalchemy import and_
 from config.config import DEFAULT_AREA_TYPES
@@ -11,6 +10,7 @@ from app.core.env import DB, cache
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.dynamic_content import BibDynamicPagesCategory, TDynamicPages
 from app.models.ref_geo import BibAreasTypes, LAreas, LAreasTypeSelection
+from app.models.ref_nomenclatures import BibNomenclaturesTypes, TNomenclatures
 from app.models.taxonomy import (
     BibRedlistCategories,
     BibRedlistSource,
