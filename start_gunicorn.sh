@@ -15,4 +15,4 @@ mkdir -p $APP_DIR/var/log/
 
 cd $APP_DIR
 
-gunicorn wsgi:app --error-log $APP_DIR/var/log/gn_errors.log --pid="${app_name:-gnbt}.pid" -w "${gun_num_workers:-4}" -t ${gun_timeout:-30} -b "${gun_host:-0.0.0.0}:${gun_port:-8090}" -n "${app_name:-gnbt}" --log-file=-
+gunicorn wsgi:application --error-log $APP_DIR/var/log/gn_errors.log --pid="${app_name:-gnbt}.pid" -w "${gun_num_workers:-4}" -t ${gun_timeout:-30} -b "${gun_host:-0.0.0.0}:${gun_port:-8090}" -n "${app_name:-gnbt}" --log-file=-
