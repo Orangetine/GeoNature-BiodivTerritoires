@@ -92,7 +92,7 @@ head %} {{ super() }} {% endblock %} {% block content %}
 </div>
 {% endif %}
 <script type="module">
-  import { CountUp } from "./static/assets/countup.min.js";
+  import { CountUp } from "{{ url_for('static', filename='assets/countup.min.js') }}";
 
   const countUpOptions = {
     separator: " ",
@@ -101,10 +101,10 @@ head %} {{ super() }} {% endblock %} {% block content %}
   const countUpUpdate = (element, data) => {
     new CountUp(element, data, countUpOptions).start();
   };
-
+  const baseUrl = "{{ url_for('rendered.index').rstrip('/') }}";
   const getStats = () => {
     axios
-      .get("/api/homestats")
+      .get(baseUrl + "/api/homestats")
       .then(function (response) {
         countUpUpdate("countOcctax", response.data["count_occtax"]);
         countUpUpdate("countDatasets", response.data["count_dataset"]);

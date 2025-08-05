@@ -441,7 +441,7 @@ La biodiversité de {{ clean_area_name }} ({{ area_info.area_code }})
 
   $('#selectBuffer').on('change', function () {
       buffer = this.value;
-      surroundingAreasTable.ajax.url('/api/surrounding_areas/{{ area_info.type_code }}/{{ area_info.area_code }}/' + buffer);
+      surroundingAreasTable.ajax.url(baseUrl + '/api/surrounding_areas/{{ area_info.type_code }}/{{ area_info.area_code }}/' + buffer);
       surroundingAreasTable.ajax.reload();
       threatenedSpeciesGlobalUpdate({{ area_info.id_area }}, buffer);
       threatenedSpeciesByTaxoGroupGetData({{ area_info.id_area }}, buffer, 'surrounding');

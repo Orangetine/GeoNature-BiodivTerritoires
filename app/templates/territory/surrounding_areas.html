@@ -42,7 +42,7 @@
   const exportTitle = "La biodiversité aux alentours de {{clean_area_name}} ({{ area_info.area_code }}) \n {{site_name | safe}}"
   var surroundingAreasTable = $("#surroundingAreasTable").DataTable({
           ajax: {
-              url: '/api/surrounding_areas/{{ area_info.type_code }}/{{ area_info.area_code }}/' + buffer,
+              url: baseUrl + '/api/surrounding_areas/{{ area_info.type_code }}/{{ area_info.area_code }}/' + buffer,
               dataSrc: ""
           },
           scrollY: '300px',
@@ -79,7 +79,7 @@
               {
                   data: function (row) {
                     const cleanedAreaName = cleanAreaName(row.area_name);
-                    return '<a href="/territory/' + row.type_code + '/' + row.area_code + '"title="Voir la fiche de ' + cleanedAreaName + '" data-toggle="tooltip">' + cleanedAreaName + '</a>'
+                    return '<a href="' + baseUrl + '/territory/' + row.type_code + '/' + row.area_code + '"title="Voir la fiche de ' + cleanedAreaName + '" data-toggle="tooltip">' + cleanedAreaName + '</a>'
                   }
               },
               {data: "count_occtax"},

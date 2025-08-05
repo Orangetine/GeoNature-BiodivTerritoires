@@ -4,26 +4,16 @@
 DROP MATERIALIZED VIEW IF EXISTS atlas.vm_cor_area_synthese CASCADE;
 CREATE MATERIALIZED VIEW atlas.vm_cor_area_synthese AS
 SELECT
-    sa.id_synthese
-    , sa.id_area
-    , a.id_type
-    , t.type_code
-FROM synthese.synthese s
-JOIN synthese.cor_area_synthese sa ON sa.id_synthese = s.id_synthese
-JOIN ref_geo.l_areas a ON sa.id_area = a.id_area
-JOIN ref_geo.bib_areas_types t ON a.id_type = t.id_type
-WHERE 
-t.type_code::text IN ( 
-    SELECT string_to_table.string_to_table
-           FROM string_to_table(:'_type', ',') 
-        )
-        OR (a.id_type IN (SELECT id_area_type FROM synthese.cor_sensitivity_area_type))
+      id_synthese
+    , id_area
+FROM synthese.cor_area_synthese 
 WITH DATA;
 
 CREATE UNIQUE INDEX i_vm_cor_area_synthese ON atlas.vm_cor_area_synthese USING btree (id_synthese, id_area );
 CREATE INDEX i_id_area ON atlas.vm_cor_area_synthese USING btree (id_area);
+CREATE INDEX i_id_synthese ON atlas.vm_cor_area_synthese USING btree (id_synthese);
 
--- ---------------- MATERIALIZED VIEW atlas.vm_bib_areas_types
+------------------ MATERIALIZED VIEW atlas.vm_bib_areas_types
 
 DROP MATERIALIZED VIEW IF EXISTS atlas.vm_bib_areas_types CASCADE;
 CREATE MATERIALIZED VIEW atlas.vm_bib_areas_types AS
@@ -41,7 +31,7 @@ CREATE INDEX ON atlas.vm_bib_areas_types (type_name);
 DROP MATERIALIZED VIEW IF EXISTS atlas.vm_l_areas;
 CREATE MATERIALIZED VIEW atlas.vm_l_areas AS
 SELECT
-    a.id_area                                AS id_area
+       a.id_area                                AS id_area
      , a.area_code                              AS area_code
      , a.area_name                              AS area_name
      , a.id_type                                AS id_type
@@ -77,7 +67,7 @@ CREATE INDEX vm_l_areas_geom_local_gidx
         USING gist
         (geom_local);
 
-CREATE INDEX vm_l_areas_area_name_idx
+CREATE INDEX vm_l_areas_area_code_idx
     ON atlas.vm_l_areas (area_code);
 
 ------------------ MATERIALIZED VIEW atlas.vm_synthese
@@ -93,6 +83,7 @@ SELECT id_synthese
        , id_nomenclature_observation_status
        , id_nomenclature_diffusion_level
        , id_nomenclature_sensitivity
+       , id_nomenclature_valid_status   ---> Piste réalignement colonne pour filtre comme syntheseff
        , the_geom_local
 FROM synthese.synthese;
 

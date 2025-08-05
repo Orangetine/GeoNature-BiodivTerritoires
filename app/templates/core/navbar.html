@@ -1,6 +1,6 @@
 {% block navbar %}
 <nav class="navbar navbar-expand-md fixed-top navbar-light bg-light">
-  <a class="navbar-brand" href="/"
+  <a class="navbar-brand" href="{{ url_for('rendered.index') }}"
     ><img
       src="{{ url_for('static', filename='custom/images/logo.png') }}"
       height="50px"
@@ -21,21 +21,21 @@
   <div class="collapse navbar-collapse" id="navbarCollapse">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
-        <a class="nav-link {% if request.path=='/' %}active{% endif %}" href="/"
+        <a class="nav-link {% if request.path==url_for('rendered.index') %}active{% endif %}" href="{{ url_for('rendered.index') }}"
           >Accueil<span class="sr-only">(current)</span></a
         >
       </li>
       <li class="nav-item">
         <a
-          class="nav-link {% if request.path=='/datas' %}active{% endif %}"
-          href="/datas"
+          class="nav-link {% if request.path.startswith(url_for('rendered.datas')) %}active{% endif %}"
+          href="{{ url_for('rendered.datas') }}"
           >Données</a
         >
       </li>
       {% for page in special_pages %}
       <li class="nav-item">
         <a
-          class="nav-link {% if request.path=='/page/'+page.url %}active{% endif %}"
+          class="nav-link {% if request.path==url_for('.special_pages', url=page.url) %}active{% endif %}"
           href="{{ url_for('.special_pages', url=page.url) }}"
           >{{ page.link_name }}</a
         >

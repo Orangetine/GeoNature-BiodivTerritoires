@@ -7,15 +7,19 @@
     <title>{% block title %}{% endblock %} {{ site_name }}</title>
     <link rel="shortcut icon" href="{{ url_for('static', filename='custom/images/favicon.ico') }}">
     
-    {% endblock %} {% include "core/assets_css.html" %} {% include
-    "core/assets_js.html" %}
+    {% endblock %} 
+    {% include "core/assets_css.html" %} 
+    {% include "core/assets_js.html" %}
+    <script>
+      window.baseUrl = "{{ url_for('rendered.index').rstrip('/') }}";
+    </script>
     <style>
       body {
         /* padding-top: 5rem; */
         padding-top: 77px;
       }
       .paralsec {
-          background-image: url('/static/custom/images/paralsec.JPG');
+          background-image: url("{{ url_for('static', filename='custom/images/paralsec.JPG') }}");
           background-position: 100% 0%;
       }
 
@@ -25,11 +29,11 @@
 
       .paralsec2 {
           /*background-image: url("https://img.webnots.com/2015/11/parallax2.jpg");*/
-          background-image: url('/static/custom/images/paralsec2.JPG');
+          background-image: url("{{ url_for('static', filename='custom/images/paralsec2.JPG') }}");
       }
 
       .paralsec3 {
-          background-image: url('/static/custom/images/paralsec3.JPG');
+          background-image: url("{{ url_for('static', filename='custom/images/paralsec3.JPG') }}");
       }
 
       .paralsec h1, .paralsec1 h1, .paralsec2 h1, .paralsec3 h1 {

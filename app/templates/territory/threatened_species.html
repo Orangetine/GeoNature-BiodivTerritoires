@@ -75,7 +75,7 @@
 
     const threatenedSpeciesGlobalUpdate = (id_area, buffer) => {
         $('#threatenedSpeciesGlobalSpinner').show();
-        axios.get(`/api/charts/synthesis/group2_inpn_species/${id_area}/${buffer}`)
+        axios.get(`${baseUrl}/api/charts/synthesis/group2_inpn_species/${id_area}/${buffer}`)
             .then(function (response) {
                 threatenedSpeciesGlobalChart.data.datasets[0].data = [response.data['territory']['threatened'].reduce(add), response.data['surrounding']['threatened'].reduce(add)];
                 threatenedSpeciesGlobalChart.data.datasets[1].data = [response.data['territory']['not_threatened'].reduce(add), response.data['surrounding']['not_threatened'].reduce(add)];
@@ -144,7 +144,7 @@
 
   const  threatenedSpeciesByTaxoGroupGetData = (id_area, buffer, source_data) => {
       $('#threatenedSpeciesByTaxoGroupSpinner').show();
-      axios.get(`/api/charts/synthesis/group2_inpn_species/${id_area}/${buffer}`)
+      axios.get(`${baseUrl}/api/charts/synthesis/group2_inpn_species/${id_area}/${buffer}`)
           .then(function (response) {
               threatenedSpeciesByTaxoGroupDatas = response.data;
               $('#threatenedSpeciesByTaxoGroupSpinner').hide();

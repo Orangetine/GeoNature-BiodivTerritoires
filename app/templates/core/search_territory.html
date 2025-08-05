@@ -15,7 +15,7 @@
 
     $(".search-territory-select").select2({
         ajax: {
-            url: "/api/find/area",
+            url: baseUrl + "/api/find/area",
             dataType: 'json',
             delay: 250,
             data: function (params) {
@@ -53,7 +53,7 @@
 
     $('.search-territory-select').change(function () {
         var data = $(this).val();
-        location.href = '/api/area/' + data;
+        location.href = baseUrl + '/api/area/' + data;
     });
 
 

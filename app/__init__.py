@@ -30,6 +30,7 @@ def create_app():
 
     app.app_context().push()
     app.secret_key = config("SECRET_KEY")
+    app.config["APPLICATION_ROOT"] = "/territoire"
 
     # Load config
     try:
@@ -124,7 +125,7 @@ def create_app():
         create_special_pages()
         init_custom_files()
         # Register blueprint(s)
-        app.register_blueprint(rendered)
+        app.register_blueprint(rendered, url_prefix = "/")
         app.register_blueprint(api, url_prefix="/api")
         app.register_blueprint(nom_routes, url_prefix="/api/nomenclatures")
         return app

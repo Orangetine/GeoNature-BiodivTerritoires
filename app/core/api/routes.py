@@ -2,7 +2,6 @@ from flask import Blueprint, current_app, jsonify, redirect, request, url_for
 from flask.wrappers import Response
 from geoalchemy2.shape import to_shape
 from geojson import Feature, FeatureCollection
-from pypnnomenclature.models import TNomenclatures
 from sqlalchemy import and_, distinct, or_
 from sqlalchemy.dialects.postgresql import aggregate_order_by
 from sqlalchemy.sql import case, func, funcfilter
@@ -14,6 +13,7 @@ from app.core.utils import (
     is_secured_area,
 )
 from app.models.datas import BibDatasTypes, TReleasedDatas
+from app.models.ref_nomenclatures import TNomenclatures
 from app.models.ref_geo import (
     BibAreasTypes,
     LAreas,
@@ -774,6 +774,9 @@ def build_group2inpn_query(id_area, buffer=None, is_surrounding=False):
 
     if is_surrounding:
         query = query.filter(Synthese.the_geom_local.ST_DWithin(LAreas.geom_local, buffer))
+    else: 
+        query = query.filter(CorAreaSynthese.id_synthese == Synthese.id_synthese,
+                             CorAreaSynthese.id_area == LAreas.id_area)
 
     if not is_secured_area(id_area):
         query = query.filter(

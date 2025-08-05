@@ -84,7 +84,7 @@
 
   const mediaIcon = document.createElement("img");
   mediaIcon.classList.add("me-2");
-  mediaIcon.src = `/static/assets/images/uicn/${category.toLowerCase()}.svg`;
+  mediaIcon.src = `{{ url_for('static', filename='assets/images/uicn/') }}${category.toLowerCase()}.svg`;
   mediaIcon.alt = category;
 
   const mediaIconSpan = document.createElement("span");
@@ -245,7 +245,7 @@
       });
   });
 
-  var listSpecieTableDatas = "/api/list_taxa/{{ area_info.id_area }}";
+  var listSpecieTableDatas = baseUrl + "/api/list_taxa/{{ area_info.id_area }}";
 
   $(document).ready(function () {
     function format(d) {

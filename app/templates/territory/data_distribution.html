@@ -106,7 +106,7 @@
     gridListSpeciesTable = $("#gridListSpeciesTable").DataTable({
       serverSide: false,
       ajax: {
-        url: "/api/list_taxa/simp/" + id_area,
+        url: baseUrl + "/api/list_taxa/simp/" + id_area,
         dataSrc: "data",
       },
       deferLoading: 0,
@@ -147,14 +147,14 @@
     $("#gridListSpeciesSpinner").show();
     $("#gridListSpeciesTable").show();
     gridListSpeciesTable.clear();
-    gridListSpeciesTable.ajax.url("/api/list_taxa/simp/" + id_area);
+    gridListSpeciesTable.ajax.url(baseUrl + "/api/list_taxa/simp/" + id_area);
     gridListSpeciesTable.ajax.reload();
     $("#gridListSpeciesSpinner").hide();
   };
 
   const storeStyles = () => {
     axios
-      .get("/api/territory/conf/ntile/")
+      .get(baseUrl + "/api/territory/conf/ntile/")
       .then(function (response) {
         // list style types
         var lookup = {};
@@ -207,7 +207,7 @@
   // [Carte d'état des connaissances du territoire] <COUCHE> : Charge et affiche le zonage du territoire
   const getTerritoryArea = () => {
     axios
-      .get(`/api/geom/${area_info.type_code}/${area_info.area_code}`)
+      .get(`${baseUrl}/api/geom/${area_info.type_code}/${area_info.area_code}`)
       .then(function (response) {
         const situationObject = L.geoJson(response.data, {
           style: territoryStyle,
@@ -249,7 +249,7 @@
   function getGridArea(type) {
     $("#mapSpinner").show();
     axios
-      .get(`/api/grid_data/${area_info.id_area}/${buffer}/${grid}`)
+      .get(`${baseUrl}/api/grid_data/${area_info.id_area}/${buffer}/${grid}`)
       .then(function (response) {
         if (datasMapValues.areaGridDatas !== null) {
           datasMap.removeLayer(datasMapValues.areaGridDatas);
@@ -406,7 +406,7 @@
   var temporalDistribChartUpdate = (id_area, temporalUnit) => {
     $("#temporalDistribChartSpinner").show();
     axios
-      .get("/api/charts/synthesis/" + temporalUnit + "/" + id_area)
+      .get(baseUrl + "/api/charts/synthesis/" + temporalUnit + "/" + id_area)
       .then(function (response) {
         var data = response.data;
         temporalDistribChart.data.datasets[0].data = data.map(
@@ -482,7 +482,7 @@
   var taxoGroupDistribChartUpdate = function (id_area) {
     $("#temporalDistribChartSpinner").show();
     axios
-      .get("/api/charts/synthesis/taxogroup/" + id_area)
+      .get(baseUrl + "/api/charts/synthesis/taxogroup/" + id_area)
       .then(function (response) {
         var data = response.data;
         taxoGroupDistribChart.data.datasets[0].data = data.map(
