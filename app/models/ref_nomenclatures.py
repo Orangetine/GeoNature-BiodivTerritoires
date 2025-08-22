@@ -5,7 +5,6 @@ from sqlalchemy import (
     String,
     Text,
 )
-from sqlalchemy.dialects.postgresql import JSONB
 from utils_flask_sqla.serializers import serializable
 
 from app.core.env import DB

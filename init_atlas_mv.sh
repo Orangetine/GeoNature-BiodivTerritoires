@@ -26,6 +26,13 @@ psql -d $db_name -U $user_pg -h $db_host -p $db_port\
      -f data/territoire/intermediary_table.sql &>> var/log/install_db.log
 echo "[$(date +'%H:%M:%S')] Passed - Duration : $((($SECONDS-$time_temp)/60))m$((($SECONDS-$time_temp)%60))s"
 
+echo "[$(date +'%H:%M:%S')] Création de Syntheseff ..." &>> var/log/install_db.log
+export PGPASSWORD=$user_pg_pass 
+time_temp=$SECONDS
+psql -d $db_name -U $user_pg -h $db_host -p $db_port\
+     -f data/territoire/syntheseff.sql &>> var/log/install_db.log
+echo "[$(date +'%H:%M:%S')] Passed - Duration : $((($SECONDS-$time_temp)/60))m$((($SECONDS-$time_temp)%60))s"
+
 echo "[$(date +'%H:%M:%S')] Création des MVs du schéma taxonomy ..." &>> var/log/install_db.log
 export PGPASSWORD=$user_pg_pass 
 time_temp=$SECONDS

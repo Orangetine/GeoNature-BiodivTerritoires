@@ -8,7 +8,7 @@ from flask import (
 )
 from sqlalchemy import and_
 
-from app.core.env import DB
+from app.core.env import DB, cache
 from app.core.utils import clean_area_name
 from app.models.datas import BibDatasTypes, TReleasedDatas
 from app.models.dynamic_content import BibDynamicPagesCategory, TDynamicPages
@@ -16,6 +16,7 @@ from app.models.ref_geo import BibAreasTypes, LAreas
 from app.models.territory import MVAreaNtileLimit, MVTerritoryGeneralStats
 
 rendered = Blueprint("rendered", __name__)
+CACHE_TIMEOUT = current_app.config["CACHE_TIMEOUT"]
 
 
 def get_legend_classes(type: str):
@@ -37,7 +38,7 @@ def get_legend_classes(type: str):
 
 
 @rendered.context_processor
-# @cache.cached(timeout=600)
+@cache.cached(timeout=CACHE_TIMEOUT)
 def global_variables():
     try:
         values = {}
@@ -106,7 +107,7 @@ def global_variables():
 
 
 @rendered.route("/")
-# @cache.cached(timeout=600)
+@cache.cached(timeout=CACHE_TIMEOUT)
 def index() -> str:
     try:
         home_desc = (

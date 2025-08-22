@@ -13,6 +13,7 @@
     <script>
       window.baseUrl = "{{ url_for('rendered.index').rstrip('/') }}";
     </script>
+
     <style>
       body {
         /* padding-top: 5rem; */
@@ -33,7 +34,7 @@
       }
 
       .paralsec3 {
-          background-image: url("{{ url_for('static', filename='custom/images/paralsec3.JPG') }}");
+          background-image: url("{{ url_for('static', filename='custom/images/paralsec3.JPG') }}"); 
       }
 
       .paralsec h1, .paralsec1 h1, .paralsec2 h1, .paralsec3 h1 {
@@ -46,7 +47,7 @@
       }
     </style>
     <script>
-      specieListScrollY = null;
+      specieListScrollY = '60vh';
     </script>
   </head>
 

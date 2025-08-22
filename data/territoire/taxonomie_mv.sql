@@ -1,6 +1,7 @@
+
 --------------------- MATERIALIZED VIEW taxonomie.taxref_liste_rouge_fr
-DROP MATERIALIZED VIEW IF EXISTS taxonomie.taxref_liste_rouge_fr CASCADE;
-CREATE MATERIALIZED VIEW taxonomie.taxref_liste_rouge_fr AS
+DROP MATERIALIZED VIEW IF EXISTS gn_biodivterritory.taxref_liste_rouge_fr CASCADE;
+CREATE MATERIALIZED VIEW gn_biodivterritory.taxref_liste_rouge_fr AS
     SELECT row_number() OVER () AS id_lr, sr.*
         FROM (
     SELECT DISTINCT ON (
@@ -34,7 +35,7 @@ CREATE MATERIALIZED VIEW taxonomie.taxref_liste_rouge_fr AS
             WHEN 'NE' THEN 60
             ELSE NULL
         END AS ordre_statut
-    FROM taxonomie.taxref tr
+    FROM atlas.vm_taxref tr
         JOIN taxonomie.bdc_statut bs ON tr.cd_nom = bs.cd_nom
     WHERE bs.cd_sig IN ('ETATFRA','TERFXFR','INSEER11','INSEED75','INSEED77','INSEED78','INSEED91','INSEED92','INSEED93','INSEED94','INSEED95')
     AND bs.regroupement_type = 'Liste rouge' 
@@ -45,8 +46,8 @@ CREATE MATERIALIZED VIEW taxonomie.taxref_liste_rouge_fr AS
 
 
 --------------------- MATERIALIZED VIEW taxonomie.taxref_protection_articles
-DROP MATERIALIZED VIEW IF EXISTS taxonomie.taxref_protection_articles CASCADE;
-CREATE MATERIALIZED VIEW taxonomie.taxref_protection_articles AS
+DROP MATERIALIZED VIEW IF EXISTS gn_biodivterritory.taxref_protection_articles CASCADE;
+CREATE MATERIALIZED VIEW gn_biodivterritory.taxref_protection_articles AS
     SELECT DISTINCT code_statut as cd_protection, 
         split_part(label_statut, ':', 2) as article, 
         split_part(label_statut, ':', 1) as intitule,  
@@ -63,23 +64,23 @@ CREATE MATERIALIZED VIEW taxonomie.taxref_protection_articles AS
     ORDER BY code_statut ASC;
 
 --------------------- MATERIALIZED VIEW taxonomie.taxref_protection_especes
-DROP MATERIALIZED VIEW IF EXISTS taxonomie.taxref_protection_especes CASCADE;
-CREATE MATERIALIZED VIEW taxonomie.taxref_protection_especes AS
+DROP MATERIALIZED VIEW IF EXISTS gn_biodivterritory.taxref_protection_especes CASCADE;
+CREATE MATERIALIZED VIEW gn_biodivterritory.taxref_protection_especes AS
     SELECT bs.cd_nom, 
         bs.code_statut as cd_protection, 
         bs.lb_nom as nom_cite, 
         tr.nom_vern as nom_francais_cite
     FROM taxonomie.bdc_statut bs
-	    JOIN taxonomie.taxref tr on bs.cd_nom = tr.cd_nom
+	    JOIN atlas.vm_taxref tr on bs.cd_nom = tr.cd_nom
     WHERE cd_sig in ('ETATFRA','TERFXFR' , 'INSEER11', 'INSEED75', 'INSEED77',  'INSEED78', 
                      'INSEED91', 'INSEED92',  'INSEED93', 'INSEED94', 'INSEED95')
     AND regroupement_type IN ('Protection', 'Réglementation') 
     ORDER BY cd_nom ASC;
-CREATE INDEX fki_cd_nom_taxref_protection_especes ON taxonomie.taxref_protection_especes USING btree (cd_nom);
+CREATE INDEX fki_cd_nom_taxref_protection_especes ON gn_biodivterritory.taxref_protection_especes USING btree (cd_nom);
 
 --------------------- MATERIALIZED VIEW taxonomie.bib_c_redlist_source
-DROP MATERIALIZED VIEW IF EXISTS taxonomie.bib_c_redlist_source CASCADE;
-CREATE MATERIALIZED VIEW taxonomie.bib_c_redlist_source AS
+DROP MATERIALIZED VIEW IF EXISTS gn_biodivterritory.bib_c_redlist_source CASCADE;
+CREATE MATERIALIZED VIEW gn_biodivterritory.bib_c_redlist_source AS
 SELECT 
     row_number() OVER () AS id_source, sr.*
 FROM 
@@ -99,7 +100,7 @@ SELECT DISTINCT
 	    doc_url as url_source,
         annee_publication
     FROM
-        taxonomie.taxref_liste_rouge_fr lr
+        gn_biodivterritory.taxref_liste_rouge_fr lr
         JOIN taxonomie.bdc_statut st ON lr.cd_nom = st.cd_nom
     WHERE cd_sig in ('ETATFRA','TERFXFR' , 'INSEER11', 'INSEED75', 'INSEED77',  'INSEED78', 
                      'INSEED91', 'INSEED92',  'INSEED93', 'INSEED94', 'INSEED95')
@@ -107,8 +108,8 @@ SELECT DISTINCT
 	) sr ;
 
 --------------------- MATERIALIZED VIEW taxonomie.bib_c_redlist_categories
-DROP MATERIALIZED VIEW IF EXISTS taxonomie.bib_c_redlist_categories CASCADE;
-CREATE MATERIALIZED VIEW taxonomie.bib_c_redlist_categories AS
+DROP MATERIALIZED VIEW IF EXISTS gn_biodivterritory.bib_c_redlist_categories CASCADE;
+CREATE MATERIALIZED VIEW gn_biodivterritory.bib_c_redlist_categories AS
 SELECT DISTINCT
     id_categorie_france AS code_category,
 
@@ -151,26 +152,26 @@ SELECT DISTINCT
         110
     END AS priority_order
 FROM
-    taxonomie.taxref_liste_rouge_fr
+    gn_biodivterritory.taxref_liste_rouge_fr
 ORDER BY priority_order ASC;
 
-COMMENT ON MATERIALIZED VIEW taxonomie.bib_c_redlist_categories IS 'Liste des catégories de statuts de liste rouge';
+COMMENT ON MATERIALIZED VIEW gn_biodivterritory.bib_c_redlist_categories IS 'Liste des catégories de statuts de liste rouge';
 
 --------------------- MATERIALIZED VIEW taxonomie.t_c_redlist
-DROP MATERIALIZED VIEW IF EXISTS taxonomie.t_c_redlist CASCADE;
-CREATE MATERIALIZED VIEW taxonomie.t_c_redlist AS
+DROP MATERIALIZED VIEW IF EXISTS gn_biodivterritory.t_c_redlist CASCADE;
+CREATE MATERIALIZED VIEW gn_biodivterritory.t_c_redlist AS
 SELECT row_number() over() as id_redlist, sr.* FROM(
     SELECT
         ordre_statut as status_order,
-        taxref.cd_nom,
-        taxref.cd_ref,
+        vm_taxref.cd_nom,
+        vm_taxref.cd_ref,
         id_categorie_france as category,
         criteres_france as criteria,
         id_source
     FROM
-        taxonomie.taxref_liste_rouge_fr
-        JOIN taxonomie.bib_c_redlist_source ON liste_rouge_source = bib_c_redlist_source.name_source
-        JOIN taxonomie.taxref ON taxref_liste_rouge_fr.cd_nom = taxref.cd_nom) sr;
+        gn_biodivterritory.taxref_liste_rouge_fr
+        JOIN gn_biodivterritory.bib_c_redlist_source ON liste_rouge_source = bib_c_redlist_source.name_source
+        JOIN atlas.vm_taxref ON taxref_liste_rouge_fr.cd_nom = vm_taxref.cd_nom) sr;
 
-COMMENT ON MATERIALIZED VIEW taxonomie.t_c_redlist IS 'Liste des statuts de liste rouge par taxons';
+COMMENT ON MATERIALIZED VIEW gn_biodivterritory.t_c_redlist IS 'Liste des statuts de liste rouge par taxons';
 

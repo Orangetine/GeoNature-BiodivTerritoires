@@ -8,7 +8,7 @@ from app.core.env import DB
 @serializable
 class TaxrefProtectionArticles(DB.Model):
     __tablename__ = "taxref_protection_articles"
-    __table_args__ = {"schema": "taxonomie"}
+    __table_args__ = {"schema": APP_SCHEMA_NAME}
     cd_protection = Column(String, primary_key=True)
     article = Column(String)
     intitule = Column(String)
@@ -26,13 +26,13 @@ class TaxrefProtectionArticles(DB.Model):
 @serializable
 class TaxrefProtectionEspeces(DB.Model):
     __tablename__ = "taxref_protection_especes"
-    __table_args__ = {"schema": "taxonomie"}
+    __table_args__ = {"schema": APP_SCHEMA_NAME}
     cd_nom = Column(String, primary_key=True)
     cd_protection = Column(String, primary_key=True)
     nom_cite = Column(String)
     nom_francais_cite = Column(String)
 
-# Foreign Table
+# Materialized view
 @serializable
 class Taxref(DB.Model):
     __tablename__ = "vm_taxref"
@@ -81,7 +81,7 @@ class CorTaxonAttribut(DB.Model):
 @serializable
 class TaxrefLR(DB.Model):
     __tablename__ = "taxref_liste_rouge_fr"
-    __table_args__ = {"schema": "taxonomie"}
+    __table_args__ = {"schema": APP_SCHEMA_NAME}
     id_lr = Column(Integer, primary_key=True)
     cd_nom = Column(Integer)
     cd_ref = Column(Integer)
@@ -102,7 +102,7 @@ class TaxrefLR(DB.Model):
 @serializable
 class BibRedlistCategories(DB.Model):
     __tablename__ = "bib_c_redlist_categories"
-    __table_args__ = {"schema": "taxonomie"}
+    __table_args__ = {"schema": APP_SCHEMA_NAME}
     code_category = Column(String, primary_key=True)
     threatened = Column(Boolean)
     sup_category = Column(String)
@@ -111,7 +111,7 @@ class BibRedlistCategories(DB.Model):
 # Materialized View
 class BibRedlistSource(DB.Model):
     __tablename__ = "bib_c_redlist_source"
-    __table_args__ = {"schema": "taxonomie"}
+    __table_args__ = {"schema": APP_SCHEMA_NAME}
     id_source = Column(Integer, primary_key=True)
     name_source = Column(String)
     area_code = Column(String)
@@ -121,7 +121,7 @@ class BibRedlistSource(DB.Model):
 # Materialized View
 class TRedlist(DB.Model):
     __tablename__ = "t_c_redlist"
-    __table_args__ = {"schema": "taxonomie"}
+    __table_args__ = {"schema": APP_SCHEMA_NAME}
     id_redlist = Column(Integer, primary_key=True)
     status_order = Column(Integer)
     cd_nom = Column(Integer)

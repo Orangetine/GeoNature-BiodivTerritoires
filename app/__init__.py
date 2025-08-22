@@ -65,7 +65,7 @@ def create_app():
         app.config["TAXHUB_URL"] = config("TAXHUB_URL")
         app.config["TAXA_LINK_URL_TEMPLATE"] = config(
             "TAXA_LINK_URL_TEMPLATE",
-            default="https://inpn.mnhn.fr/espece/cd_nom/[CDNOM]",
+            default="https://geonature.arb-idf.fr/atlas/espece/[CDNOM]",
         )
 
         # Global app info
@@ -116,11 +116,8 @@ def create_app():
         from app.core.frontend.routes import rendered
         from app.core.utils import (
             create_special_pages,
-            create_tables,
             init_custom_files,
         )
-
-        #create_tables(DB)
 
         create_special_pages()
         init_custom_files()

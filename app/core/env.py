@@ -12,10 +12,10 @@ cache = Cache(
     config={
         "CACHE_TYPE": config(
             "CACHE_TYPE",
-            default="null",
+            default="RedisCache",
             cast=Choices(["RedisCache", "null"]),
         ),
-        "CACHE_DEFAULT_TIMEOUT": 7,
+        "CACHE_DEFAULT_TIMEOUT": 7200,
     }
 )
 

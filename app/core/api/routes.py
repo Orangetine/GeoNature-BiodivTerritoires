@@ -197,7 +197,7 @@ def get_surrounding_area(
     """
     try:
         area = (
-            DB.session.query(LAreas.id_area, LAreas.geom_local)
+            DB.session.query(LAreas.id_area, LAreas.geom)
             .join(BibAreasTypes, BibAreasTypes.id_type == LAreas.id_type)
             .filter(
                 LAreas.area_code == area_code,
@@ -245,7 +245,7 @@ def get_surrounding_area(
             .filter(
                 and_(
                     MVTerritoryGeneralStats.geom_local.ST_Intersects(
-                        func.ST_Buffer(area.geom_local, buffer)
+                        func.ST_Buffer(area.geom, buffer)
                     ),
                     BibAreasTypes.id_type.in_(select),
                     MVTerritoryGeneralStats.id_area != area.id_area,
@@ -323,7 +323,7 @@ def get_geojson_area(type_code: str, area_code: str) -> Response:
                 BibAreasTypes.type_desc,
                 LAreas.area_name,
                 LAreas.area_code,
-                LAreas.the_geom.label("geom"),
+                LAreas.geom,
             )
             .join(
                 LAreas, LAreas.id_type == BibAreasTypes.id_type, isouter=True
@@ -349,7 +349,6 @@ def get_geojson_area(type_code: str, area_code: str) -> Response:
 @api.route(
     "/grid_data/<int:id_area>/<int:buffer>/<string:grid>", methods=["GET"]
 )
-@cache.cached(timeout=CACHE_TIMEOUT)
 @cache.cached(timeout=CACHE_TIMEOUT)
 def get_grid_datas(id_area: int, buffer: int, grid: str) -> Response:
     """Get one enabled municipality by insee code
@@ -383,13 +382,13 @@ def get_grid_datas(id_area: int, buffer: int, grid: str) -> Response:
         ).filter(
             func.ST_Intersects(
                 MVTerritoryGeneralStats.geom_local,
-                func.ST_Buffer(area.geom_local, buffer),
+                func.ST_Buffer(area.geom, buffer),
             )
         )
         datas = qgrid.all()
         features = []
         for d in datas:
-            features.append(d.as_geofeature("geom_4326", "id_area"))
+            features.append(d.as_geofeature("the_geom", "id_area"))
         DB.session.commit()
         return FeatureCollection(features)
     except Exception as e:
@@ -773,7 +772,7 @@ def build_group2inpn_query(id_area, buffer=None, is_surrounding=False):
     )
 
     if is_surrounding:
-        query = query.filter(Synthese.the_geom_local.ST_DWithin(LAreas.geom_local, buffer))
+        query = query.filter(Synthese.the_geom_local.ST_DWithin(LAreas.geom, buffer))
     else: 
         query = query.filter(CorAreaSynthese.id_synthese == Synthese.id_synthese,
                              CorAreaSynthese.id_area == LAreas.id_area)

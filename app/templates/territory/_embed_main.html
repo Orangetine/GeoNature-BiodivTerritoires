@@ -142,7 +142,8 @@ La biodiversité de {{area_info.area_name }} ({{ area_info.type_name }} : {{ are
                   title="Espèces à statuts de conservation défavorable"
                   >espèces menacées</abbr
                 >
-                du territoire <u>et</u> de sa zone tampon (sélectionnée
+                du territoire (espèces disposant d'un statut liste rouge national et régional :
+                <u>CR</u> = En danger critique, <u>EN</u> = En danger ou <u>VU</u> = Vulnérable) <u>et</u> de sa zone tampon (sélectionnée
                 précédemment).
               </div>
             </div>
@@ -209,8 +210,7 @@ La biodiversité de {{area_info.area_name }} ({{ area_info.type_name }} : {{ are
                     Cliquez sur une maille de la carte pour accéder à la liste
                     des espèces observées sur cette dernière : les lignes en
                     <span class="bg-danger text-light">rouge</span> qui
-                    s'affichent mettent en évidence les espèces qui présentent
-                    un statut de conservation défavorable.<br />
+                    s'affichent mettent en évidence les <u>espèces menacées</u>.<br />
                   </div>
                 </div>
               </div>
@@ -221,9 +221,9 @@ La biodiversité de {{area_info.area_name }} ({{ area_info.type_name }} : {{ are
                 <span class="text-danger"
                   ><strong
                     >La liste des espèces par maille n'affiche que les données
-                    "non cachées" du territoire. Les données cachées sont des
-                    données cachées à la demande de l'observateur ou des données
-                    d'espèces sensibles à fort enjeu de conservation.</strong
+                    "non floutées" du territoire. Les données floutées sont des données 
+                    d'espèces sensibles à fort enjeu de conservation dont la localisation précise 
+                    est masquée dans le cadre du Référentiel de sensibilité francilien.</strong
                   ></span
                 >
               </div>
@@ -293,10 +293,10 @@ La biodiversité de {{area_info.area_name }} ({{ area_info.type_name }} : {{ are
                     <i class="fas fa-exclamation-triangle text-danger"></i>
                     <span class="text-danger"
                       ><strong
-                        >Ce tableau n'affiche que les données "non cachées" du
-                        territoire. Les données cachées sont des données cachées
-                        à la demande de l'observateur ou des données d'espèces
-                        sensibles à fort enjeu de conservation.</strong
+                        >Ce tableau n'affiche que les données "non floutées" du
+                        territoire. Les données floutées sont des données d'espèces sensibles 
+                        à fort enjeu de conservation dont la localisation précise est masquée 
+                        dans le cadre du Référentiel de sensibilité francilien.</strong
                       ></span
                     >
                   </div>
@@ -366,7 +366,7 @@ La biodiversité de {{area_info.area_name }} ({{ area_info.type_name }} : {{ are
             </div>
           </div>
           <div class="col">
-            {% include "territory/surrounding_areas.html" %}
+            {% include "territory/surrounding_areas_embed.html" %}
           </div>
         </div>
       </div>
@@ -375,13 +375,38 @@ La biodiversité de {{area_info.area_name }} ({{ area_info.type_name }} : {{ are
 </div>
 
 <script>
-  $('select option[value=' + buffer + ']').attr("selected", true);
+  // Correction bug classique “Leaflet dans un conteneur qui change de taille (modal/iframe)” :
+  // la carte ne connaît pas la bonne largeur/hauteur → on force un recalcul et on recentre sur les mailles.
+  function pokeMap() {
+    if (!window.datasMap) return;                               // si la carte n’existe pas, on sort
+    datasMap.invalidateSize(true);                              // dit à Leaflet de recalculer la taille du conteneur
+    if (window.datasMapValues && datasMapValues.areaGridDatas) {
+      const b = datasMapValues.areaGridDatas.getBounds();       // emprise des mailles (GeoJSON)
+      if (b && b.isValid && b.isValid()) datasMap.fitBounds(b, { padding: [16,16] }); // recadre la carte sur les mailles
+    }
+  }
+
+  // valeur initiale sélectionnée
+  $('select option[value="' + buffer + '"]').attr('selected', true);
 
   $('#selectBuffer').on('change', function () {
       buffer = this.value;
       threatenedSpeciesGlobalUpdate({{ area_info.id_area }}, buffer);
       threatenedSpeciesByTaxoGroupGetData({{ area_info.id_area }}, buffer, 'surrounding');
-      getGridArea('taxa');
+      getGridArea('taxa');                // recharge les mailles selon le nouveau buffer
+
+      // laisse le temps à la couche/DOM de se poser puis recalcule
+      requestAnimationFrame(pokeMap);     // au prochain repaint
+      setTimeout(pokeMap, 150);           // petit filet de sécurité
   });
+
+  // au chargement (utile si la carte est dans une modale/iframe)
+  window.addEventListener('load', () => {
+    requestAnimationFrame(pokeMap);
+    setTimeout(pokeMap, 200);
+  });
+
+  // au resize
+  window.addEventListener('resize', pokeMap);
 </script>
 {% endblock %}

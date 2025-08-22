@@ -211,7 +211,7 @@ let specieListScrollY = "500px";
 const generateTaxaLinkUrl = (urlTemplate, cdnom) => {
   urlTemplate = urlTemplate
     ? urlTemplate
-    : "https://inpn.mnhn.fr/espece/cd_nom/[CDNOM]";
+    : "https://geonature.arb-idf.fr/atlas/espece/[CDNOM]";
   return urlTemplate.replace("[CDNOM]", cdnom);
 };
 

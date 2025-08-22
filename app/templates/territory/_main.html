@@ -145,7 +145,8 @@ La biodiversité de {{ clean_area_name }} ({{ area_info.area_code }})
                   title="Espèces à statuts de conservation défavorable"
                   >espèces menacées</abbr
                 >
-                du territoire <u>et</u> de sa zone tampon (sélectionnée
+                du territoire (espèces disposant d'un statut liste rouge national et régional :
+                <u>CR</u> = En danger critique, <u>EN</u> = En danger ou <u>VU</u> = Vulnérable) <u>et</u> de sa zone tampon (sélectionnée
                 précédemment).
               </div>
             </div>
@@ -232,8 +233,7 @@ La biodiversité de {{ clean_area_name }} ({{ area_info.area_code }})
                     Cliquez sur une maille de la carte pour accéder à la liste
                     des espèces observées sur cette dernière : les lignes en
                     <span class="bg-danger text-light">rouge</span> qui
-                    s'affichent mettent en évidence les espèces qui présentent
-                    un statut de conservation défavorable.<br />
+                    s'affichent mettent en évidence les <u>espèces menacées</u>.<br />
                   </div>
                 </div>
               </div>
@@ -244,9 +244,9 @@ La biodiversité de {{ clean_area_name }} ({{ area_info.area_code }})
                 <span class="text-danger"
                   ><strong
                     >La liste des espèces par maille n'affiche que les données
-                    "non cachées" du territoire. Les données cachées sont des
-                    données cachées à la demande de l'observateur ou des données
-                    d'espèces sensibles à fort enjeu de conservation.</strong
+                    "non floutées" du territoire. Les données floutées sont des données 
+                    d'espèces sensibles à fort enjeu de conservation dont la localisation précise 
+                    est masquée dans le cadre du Référentiel de sensibilité francilien.</strong
                   ></span
                 >
               </div>
@@ -336,10 +336,10 @@ La biodiversité de {{ clean_area_name }} ({{ area_info.area_code }})
                     <i class="fas fa-exclamation-triangle text-danger"></i>
                     <span class="text-danger"
                       ><strong
-                        >Ce tableau n'affiche que les données "non cachées" du
-                        territoire. Les données cachées sont des données cachées
-                        à la demande de l'observateur ou des données d'espèces
-                        sensibles à fort enjeu de conservation.</strong
+                        >Ce tableau n'affiche que les données "non floutées" du
+                        territoire. Les données floutées sont des données d'espèces sensibles 
+                        à fort enjeu de conservation dont la localisation précise est masquée 
+                        dans le cadre du Référentiel de sensibilité francilien.</strong
                       ></span
                     >
                   </div>

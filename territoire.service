@@ -11,7 +11,7 @@ Environment=GUNICORN_PROC_NAME=biodiv-territoire
 Environment=GUNICORN_NUM_WORKERS=4
 Environment=GUNICORN_HOST=127.0.0.1
 Environment=GUNICORN_PORT=8070
-Environment=GUNICORN_TIMEOUT=300
+Environment=GUNICORN_TIMEOUT=600
 ExecStart=/var/www/territoire/.venv/bin/gunicorn wsgi:application \
                 --name "${GUNICORN_PROC_NAME}" --workers "${GUNICORN_NUM_WORKERS}" \
                 --bind "${GUNICORN_HOST}:${GUNICORN_PORT}" --timeout="${GUNICORN_TIMEOUT}"

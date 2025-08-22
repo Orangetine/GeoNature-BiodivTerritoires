@@ -148,7 +148,8 @@
     };
     return result;
   };
-
+  // Timeout global de 10 minutes
+  axios.defaults.timeout = 600000;
   $(document.body).on("click", "#protectionDetails", function () {
     var cdref = $(this).data("cdref");
     axios
@@ -244,7 +245,6 @@
         console.error("<protectionDetails> Error", error);
       });
   });
-
   var listSpecieTableDatas = baseUrl + "/api/list_taxa/{{ area_info.id_area }}";
 
   $(document).ready(function () {
@@ -302,6 +302,23 @@
 
       return `<table class="table">${dataArray.join("")}</table>`;
     }
+
+    // Patch AVANT l'initialisation
+    // Si la table est déjà initialisée, on la détruit pour repartir proprement
+    var $t = $('#listSpeciesTable');
+    if ($.fn.DataTable.isDataTable($t)) {
+      $t.DataTable().destroy();
+    }
+
+    // Vérifie que la variable est bien définie, sinon fixe une valeur par défaut
+    if (typeof window.specieListScrollY === 'undefined' || !window.specieListScrollY) {
+      // Min 240px ou 60% de la fenêtre
+      window.specieListScrollY = Math.max(240, Math.floor(window.innerHeight * 0.6)) + 'px';
+    }
+
+    // Log pour vérifier la valeur
+    console.log('listSpecies scrollY =', window.specieListScrollY);
+
 
     var listSpeciesTable = $("#listSpeciesTable").DataTable({
       ajax: {

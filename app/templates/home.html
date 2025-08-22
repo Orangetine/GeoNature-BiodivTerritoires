@@ -103,6 +103,8 @@ head %} {{ super() }} {% endblock %} {% block content %}
   };
   const baseUrl = "{{ url_for('rendered.index').rstrip('/') }}";
   const getStats = () => {
+    // Timeout global de 10 minutes
+    axios.defaults.timeout = 600000;
     axios
       .get(baseUrl + "/api/homestats")
       .then(function (response) {

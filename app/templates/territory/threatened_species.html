@@ -71,8 +71,9 @@
           maintainAspectRatio: false,
       }
   });
-
-
+    
+    // Timeout global de 10 minutes
+    axios.defaults.timeout = 600000;
     const threatenedSpeciesGlobalUpdate = (id_area, buffer) => {
         $('#threatenedSpeciesGlobalSpinner').show();
         axios.get(`${baseUrl}/api/charts/synthesis/group2_inpn_species/${id_area}/${buffer}`)

@@ -151,7 +151,8 @@
     gridListSpeciesTable.ajax.reload();
     $("#gridListSpeciesSpinner").hide();
   };
-
+  // Timeout global de 10 minutes
+  axios.defaults.timeout = 600000;
   const storeStyles = () => {
     axios
       .get(baseUrl + "/api/territory/conf/ntile/")

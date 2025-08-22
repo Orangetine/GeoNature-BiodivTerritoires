@@ -18,7 +18,6 @@ class MVGeneralStats(DB.Model):
     count_occtax = Column(Integer)
     count_observer = Column(Integer)
     count_taxa = Column(Integer)
-    # count_dataset = Column(Integer)
 
 
 @serializable
@@ -34,12 +33,11 @@ class MVTerritoryGeneralStats(DB.Model):
     count_taxa = Column(Integer)
     count_threatened = Column(Integer)
     count_occtax = Column(Integer)
-    # count_dataset = Column(Integer)
     count_date = Column(Integer)
     count_observer = Column(Integer)
     last_obs = Column(Date)
     geom_local = Column(Geometry("GEOMETRY", LOCAL_SRID))
-    geom_4326 = Column(Geometry("GEOMETRY", 4326))
+    the_geom = Column(Geometry("GEOMETRY", 4326))
 
     def __repr__(self):
         return (

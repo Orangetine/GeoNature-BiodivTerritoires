@@ -1,3 +1,7 @@
+--------------------- Creation Schema gn_biodivterritory
+
+DROP SCHEMA IF EXISTS gn_biodivterritory CASCADE;
+CREATE SCHEMA gn_biodivterritory;
 
 ------------------ MATERIALIZED VIEW atlas.vm_cor_area_synthese
 
@@ -27,48 +31,37 @@ CREATE INDEX ON atlas.vm_bib_areas_types (type_code);
 CREATE INDEX ON atlas.vm_bib_areas_types (type_name);
 
 ---------------- MATERIALIZED VIEW atlas.vm_l_areas
-
-DROP MATERIALIZED VIEW IF EXISTS atlas.vm_l_areas;
+DROP MATERIALIZED VIEW IF EXISTS atlas.vm_l_areas CASCADE;
 CREATE MATERIALIZED VIEW atlas.vm_l_areas AS
 SELECT
-       a.id_area                                AS id_area
-     , a.area_code                              AS area_code
-     , a.area_name                              AS area_name
-     , a.id_type                                AS id_type
-     , a.geom                                   AS geom_local    
-     , a.geom_4326                              AS the_geom
-     , st_asgeojson(a.geom_4326)                AS area_geojson
-     , ''::text                                 AS description
-     , a.enable
-FROM ref_geo.l_areas a
-JOIN ref_geo.bib_areas_types b on a.id_type = b.id_type
-    JOIN atlas.t_layer_territoire layer ON ST_INTERSECTS(layer.the_geom, a.geom_4326)
+    a.id_area                                AS id_area
+  , a.area_code                              AS area_code
+  , a.area_name                              AS area_name
+  , a.id_type                                AS id_type
+  , a.centroid                               AS centroid
+  , a.enable
+  , a.geom
+  , geom_4326                                AS the_geom
+  , st_asgeojson(geom_4326)                  AS area_geojson
+FROM
+    ref_geo.l_areas a
+        JOIN atlas.vm_bib_areas_types t
+             ON t.id_type = a.id_type
 WHERE
     enable = TRUE AND
-    (b.type_code IN (
-        SELECT * from string_to_table(:'_type', ',')
-        )
-        OR a.id_type in (
-            SELECT id_area_type
-            FROM synthese.cor_sensitivity_area_type
-        ))
+    type_code IN (SELECT * from string_to_table(:'_areas', ',')) 
 WITH DATA;
 
 CREATE UNIQUE INDEX vm_l_areas_id_area_idx
-    ON atlas.vm_l_areas (id_area);
+    ON atlas.vm_l_areas(id_area);
 
 CREATE INDEX vm_l_areas_the_geom_gidx
     ON atlas.vm_l_areas
         USING gist
         (the_geom);
 
-CREATE INDEX vm_l_areas_geom_local_gidx
-    ON atlas.vm_l_areas
-        USING gist
-        (geom_local);
-
-CREATE INDEX vm_l_areas_area_code_idx
-    ON atlas.vm_l_areas (area_code);
+CREATE INDEX vm_l_areas_area_name_idx
+    ON atlas.vm_l_areas(area_code);
 
 ------------------ MATERIALIZED VIEW atlas.vm_synthese
 
@@ -84,7 +77,11 @@ SELECT id_synthese
        , id_nomenclature_diffusion_level
        , id_nomenclature_sensitivity
        , id_nomenclature_valid_status   ---> Piste réalignement colonne pour filtre comme syntheseff
+       , altitude_min
+       , altitude_max
+       , count_min
        , the_geom_local
+       , the_geom_point
 FROM synthese.synthese;
 
 CREATE UNIQUE INDEX vm_synthese_idx

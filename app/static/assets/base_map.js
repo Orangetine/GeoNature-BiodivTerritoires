@@ -1,5 +1,4 @@
 var baseLayers = {
-  //'carte': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}),
   carte: {
     layer: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       minZoom: 0,
@@ -12,12 +11,12 @@ var baseLayers = {
   },
   ortho: {
     layer: L.tileLayer(
-      "https://wxs.ign.fr/decouverte/geoportail/wmts?" +
+      "https://data.geopf.fr/wmts?" +
         "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
         "&STYLE=normal" +
         "&TILEMATRIXSET=PM" +
         "&FORMAT=image/jpeg" +
-        "&LAYER=ORTHOIMAGERY.ORTHOPHOTOS" +
+        "&LAYER=HR.ORTHOIMAGERY.ORTHOPHOTOS" +
         "&TILEMATRIX={z}" +
         "&TILEROW={y}" +
         "&TILECOL={x}",
@@ -29,21 +28,9 @@ var baseLayers = {
     ),
     title: "Orthophotographie",
   },
-  // pollum: {
-  //   layer: L.tileLayer.wms("https://data.lpo-aura.org/geoserver/wms?", {
-  //     layers: "opendata:pollum_aura",
-  //     minZoom: 0,
-  //     maxZoom: 18,
-  //     attribution:
-  //       'Pollution lumineuse généré d\'après les données de <a href="https://ngdc.noaa.gov/eog/viirs/download_dnb_composites.html" target="_blank" data-toggle="tooltip" title="Lien vers les données source"><b>Earth Observation Group, NOAA National Centers for Environmental Information (NCEI)</b></a>',
-  //     tileSize: 256, // les tuiles du Géooportail font 256x256px
-  //   }),
-  //   title: "Pollution lumineuse",
-  //   url_info: "/pollum",
-  // },
   clc: {
     layer: L.tileLayer(
-      "https://wxs.ign.fr/clc/geoportail/wmts?" +
+      "https://data.geopf.fr/wmts?" +
         "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
         "&STYLE=CORINE%20Land%20Cover%20-%20France%20m%C3%A9tropolitaine" +
         "&TILEMATRIXSET=PM" +
@@ -58,19 +45,25 @@ var baseLayers = {
         tileSize: 256,
         opacity: 0.4,
       }
-      // "https://wxs.ign.fr/clc/geoportail/r/wms?",
-      // {
-      //   layers: "LANDCOVER.CLC18",
-      //   minZoom: 0,
-      //   maxZoom: 18,
-      //   attribution: "Corine Land Cover 2018",
-      //   tileSize: 256, // les tuiles du Géooportail font 256x256px
-      // }
     ),
     title: "Corine Land Cover",
     url_info:
       "https://www.geoportail.gouv.fr/depot/layers/LANDCOVER.CORINELANDCOVER/legendes/LANDCOVER.CORINELANDCOVER-legend.png",
   },
+// TODO: Creuser l'affichage du MOS IPR
+//   MOS_2021: {
+//     layer: L.tileLayer(
+//       'https://geoweb.iau-idf.fr/server/rest/services/Hosted/Mos2021_11postes/MapServer/3/VectorTileServer/tile/{z}/{y}/{x}.png',
+//       {
+//         minZoom: 0,
+//         maxZoom: 19,
+//         tileSize: 512,
+//         crossOrigin: true,
+//         attribution: '© IAU Île-de-France'
+//       }
+//     ),
+//     title: "Mode d'occupation du Sol IPR",
+//   }, 
 };
 //
 // var baseLayers = {};
